@@ -8,15 +8,6 @@ the indexed corpus does not provide sufficient evidence.
 
 > **The document corpus, not the LLM, is the source of truth.**
 
-## Status
-
-All 15 development phases are implemented: ingestion, chunking, embeddings,
-Qdrant, hybrid retrieval, reranking, grounded generation, citations,
-FastAPI, Streamlit, evaluation, and Docker Compose. **165/165 tests pass**
-on synthetic fixtures. See [What's verified vs. not](#whats-verified-vs-not)
-for exactly what has — and hasn't — been exercised against real 3GPP files,
-a live Qdrant server, and a real LLM API key.
-
 ## Why 3GPP is hard for RAG
 
 3GPP specifications combine deeply nested clause numbering, exact technical
