@@ -1,0 +1,183 @@
+{
+  "description": "Curated evaluation benchmark for the 3GPP RAG chatbot (SRD §44). This is a starter set covering every required category; scale to 100-150 questions once the full 8-document corpus is ingested (SRD recommends 100-150).",
+  "release": "Rel-18",
+  "questions": [
+    {
+      "id": "arch-001",
+      "category": "architecture",
+      "query": "What is the role of the AMF in the 5G System architecture?",
+      "expected_spec": "23.501",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "arch-002",
+      "category": "architecture",
+      "query": "What is the function of the UPF in the 5G core network?",
+      "expected_spec": "23.501",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "arch-003",
+      "category": "architecture",
+      "query": "What does the SMF do in a PDU session?",
+      "expected_spec": "23.501",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "proc-001",
+      "category": "procedures",
+      "query": "What are the steps of the registration procedure in 5GS?",
+      "expected_spec": "23.502",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "proc-002",
+      "category": "procedures",
+      "query": "How is a PDU session established?",
+      "expected_spec": "23.502",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "nas-001",
+      "category": "nas",
+      "query": "What is timer T3510 and when is it started?",
+      "expected_spec": "24.501",
+      "expected_clause_prefix": "5.5",
+      "answerable": true
+    },
+    {
+      "id": "nas-002",
+      "category": "nas",
+      "query": "What NAS message does the UE send to initiate registration?",
+      "expected_spec": "24.501",
+      "expected_clause_prefix": "5.5",
+      "answerable": true
+    },
+    {
+      "id": "ran-001",
+      "category": "ran",
+      "query": "What is contained in an RRCReconfiguration message?",
+      "expected_spec": "38.331",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "ran-002",
+      "category": "ran",
+      "query": "What triggers an RRC connection re-establishment?",
+      "expected_spec": "38.331",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "sec-001",
+      "category": "security",
+      "query": "How is mutual authentication performed between the UE and the network in 5G?",
+      "expected_spec": "33.501",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "sec-002",
+      "category": "security",
+      "query": "What key hierarchy is used for 5G security?",
+      "expected_spec": "33.501",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "id-001",
+      "category": "exact_identifier",
+      "query": "What is the default value of timer T3502?",
+      "expected_spec": "24.501",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "id-002",
+      "category": "exact_identifier",
+      "query": "What does the 5QI parameter represent?",
+      "expected_spec": "23.501",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "table-001",
+      "category": "tables",
+      "query": "What are the standardized 5QI values and their corresponding resource types?",
+      "expected_spec": "23.501",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "table-002",
+      "category": "tables",
+      "query": "What are the possible 5GMM cause values and their meanings?",
+      "expected_spec": "24.501",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "cross-001",
+      "category": "cross_document",
+      "query": "How does the registration procedure described in 23.502 relate to the NAS registration request in 24.501?",
+      "expected_spec": "23.502",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "cross-002",
+      "category": "cross_document",
+      "query": "How does the PDU session establishment procedure in 23.502 relate to PFCP session establishment in 29.244?",
+      "expected_spec": "23.502",
+      "expected_clause_prefix": "",
+      "answerable": true
+    },
+    {
+      "id": "unans-001",
+      "category": "unanswerable",
+      "query": "What was the internal budget allocated by 3GPP for developing Release 18?",
+      "expected_spec": null,
+      "expected_clause_prefix": "",
+      "answerable": false
+    },
+    {
+      "id": "unans-002",
+      "category": "unanswerable",
+      "query": "Which specific engineers at Ericsson authored TS 24.501?",
+      "expected_spec": null,
+      "expected_clause_prefix": "",
+      "answerable": false
+    },
+    {
+      "id": "unans-003",
+      "category": "unanswerable",
+      "query": "What is the exact silicon die size of a commercial 5G modem chipset?",
+      "expected_spec": null,
+      "expected_clause_prefix": "",
+      "answerable": false
+    },
+    {
+      "id": "wrong-rel-001",
+      "category": "wrong_release",
+      "query": "In Release 17, what changes were introduced to NR-U channel access?",
+      "expected_spec": null,
+      "expected_clause_prefix": "",
+      "answerable": false,
+      "note": "Corpus is Rel-18 only; a Rel-17-specific question must abstain even if related Rel-18 content exists."
+    },
+    {
+      "id": "wrong-rel-002",
+      "category": "wrong_release",
+      "query": "What was new in TS 23.501 Release 15 compared to Release 14?",
+      "expected_spec": null,
+      "expected_clause_prefix": "",
+      "answerable": false
+    }
+  ]
+}

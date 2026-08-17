@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+*.egg-info/
+data/raw/*
+data/processed/*
+data/metadata/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/metadata/.gitkeep
+evaluation/results/*
+!evaluation/results/.gitkeep
+.pytest_cache/
+.DS_Store
+.claude/ 

@@ -1,0 +1,15 @@
+# Non-secret defaults. Secrets (API keys, URLs with credentials) live in
+# .env only — see app/config.py. Environment variables always take
+# precedence over the env-level defaults in app/config.py.
+#
+# Only chunking is read from this file at runtime (ingestion/chunker.py).
+# Retrieval, evidence-gate, Qdrant, embedding, and reranker values are
+# configured via environment / .env defaults in app/config.py.
+
+chunking:
+  target_tokens_min: 500
+  target_tokens_max: 800
+  overlap_tokens_min: 80
+  overlap_tokens_max: 120
+  # Hard ceiling before a clause is forced to split into child chunks.
+  large_clause_token_threshold: 800

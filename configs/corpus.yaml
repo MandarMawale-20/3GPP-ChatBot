@@ -1,0 +1,39 @@
+# Release/document allowlist. The downloader and validator reject anything
+# not listed here. Do not widen this without an explicit decision — it
+# prevents accidental cross-release / cross-spec contamination.
+
+release: Rel-18
+release_number: 18
+
+documents:
+  core:
+    - spec_number: "23.501"
+      title: "System architecture for the 5G System (5GS)"
+      series: "23"
+    - spec_number: "23.502"
+      title: "Procedures for the 5G System (5GS)"
+      series: "23"
+    - spec_number: "24.501"
+      title: "Non-Access-Stratum (NAS) protocol for 5G System (5GS)"
+      series: "24"
+  extended:
+    - spec_number: "38.300"
+      title: "NR and NG-RAN Overall Description"
+      series: "38"
+    - spec_number: "38.331"
+      title: "NR Radio Resource Control (RRC) protocol specification"
+      series: "38"
+    - spec_number: "33.501"
+      title: "Security architecture and procedures for 5G System"
+      series: "33"
+    - spec_number: "29.244"
+      title: "Interface between the Control Plane and the User Plane nodes"
+      series: "29"
+    - spec_number: "29.500"
+      title: "5G System; Technical Realization of Service Based Architecture"
+      series: "29"
+
+sources:
+  portal: "https://portal.3gpp.org/"
+  repository_root: "https://www.3gpp.org/ftp/specs/latest/Rel-18/"
+  forge: "https://forge.3gpp.org/swagger/tools/parser.html"
