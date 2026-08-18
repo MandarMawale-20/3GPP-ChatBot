@@ -174,6 +174,18 @@ Open: http://localhost:8501
 
 ---
 
+## Screenshots
+
+### Chat Interface
+
+![Screenshot 1 — Chat Interface](assets/image1.png)
+
+### Search Results with Evidence
+
+![Screenshot 2 — Search Results](assets/image2.png)
+
+---
+
 ## Example Queries
 
 | Query | Retrieval scope |
