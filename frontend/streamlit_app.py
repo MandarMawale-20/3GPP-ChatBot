@@ -17,6 +17,7 @@ import streamlit as st
 API_BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:8000")
 
 ALL_DOCUMENTS = "All Documents"
+ALL_RELEASES = "All Releases"
 
 st.set_page_config(page_title="3GPP Standards Assistant", layout="centered")
 
@@ -42,7 +43,12 @@ doc_options = [ALL_DOCUMENTS] + [
 
 col1, col2 = st.columns(2)
 with col1:
-    release = st.selectbox("Release", options=["Rel-18"], index=0)
+    release = st.selectbox(
+        "Release",
+        options=[ALL_RELEASES, "Rel-18"],
+        index=1,  # "Rel-18" is the default
+        help="Search across all indexed releases, or restrict to a specific release.",
+    )
 with col2:
     document_selection = st.selectbox(
         "Documents",
@@ -50,6 +56,10 @@ with col2:
         index=0,  # "All Documents" is the default
         help="Search across all indexed documents, or restrict to one specification.",
     )
+
+# Resolve the release selector: None means "all releases" (no filter),
+# a string like "Rel-18" scopes retrieval to that release only.
+release_value = None if release == ALL_RELEASES else release
 
 st.caption(f"Scope: {release} · {document_selection}")
 
@@ -69,7 +79,7 @@ if asked and not query.strip():
 if asked and query.strip():
     with st.spinner("Retrieving evidence and generating a grounded answer..."):
         try:
-            request_body: dict = {"query": query, "release": release}
+            request_body: dict = {"query": query, "release": release_value}
             # Only send spec_number when a specific document is selected —
             # omitting it (or sending null) searches across all documents
             # for the selected release in the backend.
@@ -115,8 +125,8 @@ if asked and query.strip():
 with st.sidebar:
     st.header("About")
     st.write(
-        "This assistant answers strictly from official 3GPP Release-18 "
-        "technical specifications. It cites every claim and abstains "
+        "This assistant answers from indexed 3GPP technical specifications "
+        "across releases. It cites every claim and abstains "
         "rather than guessing when the indexed corpus doesn't have "
         "enough explicit evidence."
     )

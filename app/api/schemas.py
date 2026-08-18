@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 class ChatRequest(BaseModel):
     query: str = Field(min_length=1)
-    release: str = Field(default="Rel-18")
+    release: str | None = Field(default="Rel-18")
     spec_number: str | None = None
 
 
@@ -29,7 +29,7 @@ class ChatResponse(BaseModel):
 
 class SearchRequest(BaseModel):
     query: str = Field(min_length=1)
-    release: str = Field(default="Rel-18")
+    release: str | None = Field(default="Rel-18")
     spec_number: str | None = None
     top_k: int = Field(default=10, ge=1, le=50)
 

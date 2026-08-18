@@ -16,9 +16,11 @@ configure_logging()
 app = FastAPI(
     title="3GPP Standards RAG Chatbot",
     description=(
-        "Release-controlled, clause-aware RAG API over official 3GPP "
-        "Release-18 specifications. Answers are grounded in retrieved "
-        "evidence and abstain when the corpus lacks sufficient support."
+        "Release-aware, clause-aware RAG API over official 3GPP "
+        "technical specifications. Supports release-aware querying "
+        "(specific release, specific spec, or all indexed releases). "
+        "Answers are grounded in retrieved evidence and abstain when "
+        "the corpus lacks sufficient support."
     ),
     version="0.1.0",
 )

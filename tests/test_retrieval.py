@@ -78,3 +78,29 @@ def test_retriever_release_never_overridden_by_query() -> None:
     results = retriever.retrieve("Tell me about 24.501", release="Rel-18")
     assert all(r.chunk.release == "Rel-18" for r in results)
     assert not any(r.chunk.chunk_id == "c4" for r in results)
+
+
+def test_retriever_all_releases_mode() -> None:
+    """When release is None, retrieval spans all indexed releases."""
+    client, provider = _seeded_client(COLLECTION + "_all_releases")
+    retriever = _build_retriever(COLLECTION + "_all_releases", client, provider, FakeReranker())
+
+    results = retriever.retrieve("Tell me about 24.501", release=None)
+    # Should include both Rel-18 and Rel-17 content — no release filter applied.
+    releases = {r.chunk.release for r in results}
+    assert "Rel-17" in releases
+    assert "Rel-18" in releases
+
+
+def test_build_release_spec_filter_omits_release_when_none() -> None:
+    """build_release_spec_filter with release=None produces no release condition."""
+    from app.retrieval.hybrid import build_release_spec_filter
+
+    f = build_release_spec_filter(None)
+    # No must-conditions when release is None and spec_number is None.
+    assert len(f.must) == 0
+
+    f = build_release_spec_filter(None, spec_number="24.501")
+    # Only the spec_number condition, no release condition.
+    assert len(f.must) == 1
+    assert f.must[0].key == "spec_number"

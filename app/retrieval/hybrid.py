@@ -16,13 +16,20 @@ from app.retrieval.dense import RetrievedChunk
 RRF_K = 60
 
 
-def build_release_spec_filter(release: str, spec_number: str | None = None) -> models.Filter:
+def build_release_spec_filter(
+    release: str | None = None, spec_number: str | None = None
+) -> models.Filter:
     """Metadata filter applied before vector search — this is the mechanism
     that makes release/spec isolation a retrieval guarantee rather than a hope.
+
+    When ``release`` is ``None``, the release condition is omitted, enabling
+    cross-release retrieval across all indexed releases. Release metadata
+    remains attached to every point, so each retrieved chunk still carries
+    its originating release for citation purposes.
     """
-    conditions: list[models.FieldCondition] = [
-        models.FieldCondition(key="release", match=models.MatchValue(value=release))
-    ]
+    conditions: list[models.FieldCondition] = []
+    if release is not None:
+        conditions.append(models.FieldCondition(key="release", match=models.MatchValue(value=release)))
     if spec_number:
         conditions.append(models.FieldCondition(key="spec_number", match=models.MatchValue(value=spec_number)))
     # qdrant_client's typing expects a broader condition union; the cast is safe at runtime.

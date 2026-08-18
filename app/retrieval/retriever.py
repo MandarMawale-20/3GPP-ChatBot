@@ -47,7 +47,7 @@ class Retriever:
     def retrieve(
         self,
         query: str,
-        release: str,
+        release: str | None = None,
         spec_number: str | None = None,
         rerank_top_k: int | None = None,
     ) -> list[RetrievedChunk]:
@@ -63,9 +63,13 @@ class Retriever:
         (it is set by the frontend's document selector or an API caller). If
         none is provided, the query text is scanned for an embedded 3GPP spec
         reference (e.g. "TS 24.501") and, when found, used to scope retrieval
-        to that document only. The `release` filter is always applied and is
-        never overridden by query-derived inference — release control is a
-        hard safety boundary, not a heuristic.
+        to that document only.
+
+        Release control is a hard safety boundary — a query scoped to a
+        specific release never retrieves content from another release.
+        When ``release`` is ``None``, the release filter is omitted, enabling
+        cross-release retrieval across all indexed releases; release metadata
+        remains attached to every retrieved chunk for citation purposes.
         """
         resolved_spec_number = spec_number
         if resolved_spec_number is None:
