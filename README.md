@@ -240,45 +240,45 @@ selected, retrieval is strictly scoped to that release — a Rel-18 query will
 
 ### Runtime data flow
 
-```text
-User query
-  │
-  ▼
-Query preprocessing
-  │   extract_query_filters (regex — no LLM)
-  │   ┌─────────────────────────────────────┐
-  │   │ Release specified?                  │
-  │   │   → filter by release               │
-  │   │ No (all releases)?                   │
-  │   │   → omit release filter              │
-  │   └───────────┬───────────┘              │
-  │   Spec number specified?                 │
-  │   │   → filter by spec_number            │
-  │   │ No                                     │
-  │   │   → query text scanned for spec ref   │
-  └──────────────┬───────────────────────────┘
-                 ▼
-            Qdrant collection
-             ├── Dense search (BGE-M3)
-             └── Sparse search (BGE-M3 lexical)
-                 │
-                 ▼
-            RRF fusion (k=60)
-                 │
-                 ▼
-        Cross-encoder reranking
-                 │
-                 ▼
-   Evidence sufficiency gate
-                 │
-     ├── insufficient → Abstain (no LLM call)
-     └── sufficient → LLM grounded generation
-                 │
-                 ▼
-      Citation + claim verification
-                 │
-     ├── fail → Abstain
-     └── pass → Answer + source attribution
+```mermaid
+flowchart TD
+    Q[User query]
+    Q --> PP[Query preprocessing<br/>extract_query_filters — regex, no LLM]
+
+    PP --> Rel{Release specified?}
+    Rel -- yes --> RF[Apply release filter]
+    Rel -- no, all releases --> RN[Omit release filter]
+
+    RF --> Spec{Spec number specified?}
+    RN --> Spec
+
+    Spec -- yes --> SF[Apply spec_number filter]
+    Spec -- no --> SS[Scan query text for spec ref]
+    SS --> SF2[Apply spec_number filter if found]
+    SF --> Qd
+    SF2 --> Qd
+
+    Qd[(Qdrant collection)]
+    Qd --> Dense[Dense search<br/>BGE-M3]
+    Qd --> Sparse[Sparse search<br/>BGE-M3 lexical]
+
+    Dense --> RRF[RRF fusion<br/>k=60]
+    Sparse --> RRF
+
+    RRF --> RR[Cross-encoder reranking]
+    RR --> Gate{Evidence sufficiency gate}
+
+    Gate -- insufficient --> Abs1[Abstain<br/>no LLM call]
+    Gate -- sufficient --> LLM[LLM grounded generation]
+
+    LLM --> Vrf{Citation + claim verification}
+    Vrf -- fail --> Abs2[Abstain]
+    Vrf -- pass --> Ans[Answer + source attribution]
+
+    classDef abstain fill:#fde8e8,stroke:#b00020,color:#b00020;
+    classDef result fill:#e8f5e9,stroke:#1b5e20,color:#1b5e20;
+    class Abs1,Abs2 abstain;
+    class Ans result;
 ```
 
 ### Ingestion data flow
