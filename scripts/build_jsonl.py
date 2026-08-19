@@ -26,7 +26,8 @@ from ingestion.pipeline import PROCESSED_DIR, read_jsonl
 def main() -> int:
     configure_logging()
 
-    jsonl_files = sorted(PROCESSED_DIR.glob("*.jsonl"))
+    # Processed JSONL is namespaced by release (data/processed/<release>/<spec>.jsonl).
+    jsonl_files = sorted(PROCESSED_DIR.rglob("*.jsonl"))
     if not jsonl_files:
         logger.warning("No JSONL files found in {}", PROCESSED_DIR)
         return 1

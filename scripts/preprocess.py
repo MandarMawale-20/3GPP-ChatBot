@@ -35,6 +35,12 @@ def main() -> int:
     parser.add_argument("--series", required=True, help="Series, e.g. 24")
     parser.add_argument("--version", required=True, help="Version, e.g. 18.9.0")
     parser.add_argument("--title", required=True, help="Specification title")
+    parser.add_argument(
+        "--release",
+        default=None,
+        help="Release this DOCX belongs to (default: TARGET_RELEASE). Determines "
+        "output path so the same spec can be processed for multiple releases.",
+    )
     parser.add_argument("--source-url", default="", help="Original URL, if known")
     args = parser.parse_args()
 
@@ -43,8 +49,8 @@ def main() -> int:
         return 1
 
     config = get_settings()
-    release = config.settings.target_release
-    release_number = int(release.split("-")[1])
+    release = args.release or config.default_release
+    release_number = config.release_config(release)["release_number"]
 
     chunks = process_local_document(
         docx_path=args.docx_path,
@@ -58,7 +64,9 @@ def main() -> int:
         source_url=args.source_url,
     )
 
-    write_jsonl(chunks, PROCESSED_DIR / f"{args.spec}.jsonl")
+    # Namespaced by release so the same spec number can be chunked once per
+    # release without overwriting the others.
+    write_jsonl(chunks, PROCESSED_DIR / release.lower() / f"{args.spec}.jsonl")
     logger.info("Done: {} chunks", len(chunks))
     return 0
 

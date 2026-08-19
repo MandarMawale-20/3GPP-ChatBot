@@ -48,11 +48,17 @@ class SearchResponse(BaseModel):
 
 
 class DocumentInfo(BaseModel):
-    """A single indexed document in the corpus allowlist."""
+    """A single allowlisted document in the corpus allowlist.
+
+    `release` is always populated: a spec number (e.g. 24.501) may appear in
+    more than one indexed release, so the release disambiguates which document
+    the frontend selector is referring to.
+    """
 
     spec_number: str
     title: str
     series: str
+    release: str
 
 
 class DocumentsResponse(BaseModel):

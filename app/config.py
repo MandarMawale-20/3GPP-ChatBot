@@ -87,22 +87,71 @@ class AppConfig:
         self.corpus: dict = _load_yaml(CONFIGS_DIR / "corpus.yaml")
         self.tuning: dict = _load_yaml(CONFIGS_DIR / "settings.yaml")
 
-        # Guard: the env-level target_release must match the corpus
-        # allowlist's release; fail fast instead of silently mixing
-        # releases.
-        if self.settings.target_release != self.corpus.get("release"):
+        # Reject the legacy single-release schema (top-level `release`/`documents`)
+        # up front: under the multi-release model a release must be addressed
+        # explicitly, so a scalar `release:` can never unambiguously resolve.
+        if "release" in self.corpus and "releases" not in self.corpus:
             raise ValueError(
-                "target_release mismatch: "
-                f"env={self.settings.target_release!r} "
-                f"corpus.yaml={self.corpus.get('release')!r}. "
-                "Cross-release contamination is not allowed."
+                "configs/corpus.yaml uses the legacy single-release schema "
+                "(top-level 'release'/'documents'). Multi-release requires the "
+                "'releases' map. Migrate corpus.yaml before proceeding."
+            )
+
+        # target_release (env TARGET_RELEASE) is the *default* release for
+        # single-release CLI operations; it must be one of the enabled releases
+        # so an unscoped command never silently targets a disabled release.
+        if self.settings.target_release not in self.enabled_releases:
+            raise ValueError(
+                f"TARGET_RELEASE={self.settings.target_release!r} is not an "
+                f"enabled release. Enabled releases: {self.enabled_releases}."
             )
 
     @property
+    def default_release(self) -> str:
+        """Release used when a caller doesn't specify one (env TARGET_RELEASE)."""
+        return self.settings.target_release
+
+    @property
+    def enabled_releases(self) -> list[str]:
+        """Every release marked `enabled: true` in corpus.yaml, stable order."""
+        releases = self.corpus.get("releases", {}) or {}
+        return [r for r, cfg in releases.items() if cfg.get("enabled", True)]
+
+    def release_config(self, release: str) -> dict:
+        """The config block for one release; fail clearly if absent/disabled."""
+        releases = self.corpus.get("releases", {}) or {}
+        if release not in releases:
+            raise ValueError(f"Release {release!r} is not configured in corpus.yaml.")
+        cfg = releases[release]
+        if not cfg.get("enabled", True):
+            raise ValueError(f"Release {release!r} is disabled in corpus.yaml.")
+        return cfg
+
+    def allowed_documents(self, release: str | None = None) -> list[dict]:
+        """Every allowlisted document, optionally scoped to one release.
+
+        Each dict carries its spec_number, series, title, plus the release
+        context (``release``/``release_number``) it belongs to. ``release=None``
+        returns documents across all enabled releases (duplicates across
+        releases are intentionally preserved — 24.501 legitimately exists in
+        both Rel-17 and Rel-18 and must be indexed once per release).
+        """
+        docs: list[dict] = []
+        targets = self.enabled_releases if release is None else [release]
+        for r in targets:
+            cfg = self.release_config(r)
+            for group in cfg.get("documents", {}).values():
+                for d in group:
+                    entry = dict(d)  # don't mutate the loaded YAML
+                    entry["release"] = r
+                    entry["release_number"] = cfg["release_number"]
+                    docs.append(entry)
+        return docs
+
+    @property
     def allowed_spec_numbers(self) -> list[str]:
-        """Flat list of every spec_number this deployment may ingest."""
-        docs = self.corpus.get("documents", {})
-        return [d["spec_number"] for group in docs.values() for d in group]
+        """Flat list of every spec_number across all enabled releases."""
+        return [d["spec_number"] for d in self.allowed_documents()]
 
 
 @lru_cache

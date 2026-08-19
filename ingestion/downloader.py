@@ -191,6 +191,10 @@ def download_archive(archive: RemoteArchive, dest_path: Path) -> Path:
         tmp_path.unlink(missing_ok=True)
         raise DownloadError(f"Downloaded file is empty: {archive.url}")
 
-    tmp_path.rename(dest_path)
+    # Use replace() rather than rename(): on Windows, rename() refuses to
+    # overwrite an existing destination (WinError 183), so re-downloading a
+    # spec that was already fetched would crash. replace() overwrites
+    # atomically on both POSIX and Windows.
+    tmp_path.replace(dest_path)
     logger.info("Downloaded {} ({} bytes)", dest_path.name, dest_path.stat().st_size)
     return dest_path

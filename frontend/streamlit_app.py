@@ -37,9 +37,6 @@ def fetch_documents() -> list[dict]:
 
 
 documents = fetch_documents()
-doc_options = [ALL_DOCUMENTS] + [
-    f"TS {d['spec_number']} — {d['title']}" for d in documents
-]
 
 col1, col2 = st.columns(2)
 with col1:
@@ -49,17 +46,33 @@ with col1:
         index=1,  # "Rel-18" is the default
         help="Search across all indexed releases, or restrict to a specific release.",
     )
+
+# None means "all releases" (no release filter); a string like "Rel-18"
+# scopes retrieval to that release only.
+release_value = None if release == ALL_RELEASES else release
+
+# Show only documents for the selected release, and de-duplicate entries
+# that appear in more than one release (e.g. 24.501 in both Rel-17 and Rel-18).
+if release_value is None:
+    scoped_documents = documents
+else:
+    scoped_documents = [d for d in documents if d.get("release") == release_value]
+
+seen_labels: set[str] = set()
+doc_options = [ALL_DOCUMENTS]
+for document in scoped_documents:
+    label = f"TS {document['spec_number']} — {document['title']}"
+    if label not in seen_labels:
+        seen_labels.add(label)
+        doc_options.append(label)
+
 with col2:
     document_selection = st.selectbox(
         "Documents",
-        options=doc_options if doc_options else [ALL_DOCUMENTS],
+        options=doc_options,
         index=0,  # "All Documents" is the default
         help="Search across all indexed documents, or restrict to one specification.",
     )
-
-# Resolve the release selector: None means "all releases" (no filter),
-# a string like "Rel-18" scopes retrieval to that release only.
-release_value = None if release == ALL_RELEASES else release
 
 st.caption(f"Scope: {release} · {document_selection}")
 
@@ -121,6 +134,9 @@ if asked and query.strip():
             elif not result["abstained"]:
                 st.divider()
                 st.caption("No sources were cited for this answer.")
+
+elif not asked:
+    st.caption("Ask a question above to receive a grounded answer with cited sources.")
 
 with st.sidebar:
     st.header("About")

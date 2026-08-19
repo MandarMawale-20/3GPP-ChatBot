@@ -1,15 +1,22 @@
 """Automatic discovery of available 3GPP specifications.
 
-Discovers specifications published in the official 3GPP Rel-18 directory and
-compares them against the approved allowlist in configs/corpus.yaml. Discovery
-is read-only: it never authorizes a document. corpus.yaml remains the sole
-source of truth for what the downloader and ingestion pipeline may process;
-a specification is only promoted to approved through an explicit `--add` after
-a human reviews the candidate list.
+Discovers specifications published in the official 3GPP directory for a release
+and compares them against the approved allowlist in `configs/corpus.yaml`.
+Discovery is read-only: it never authorizes a document. corpus.yaml remains
+the sole source of truth for what the downloader and ingestion pipeline may
+process; a specification is only promoted to approved through an explicit
+`--add` after a human reviews the candidate list.
 
 The release-isolation guarantee (SRD §37, Decision 2) is preserved end to end:
-the requested release is validated against corpus.yaml, and only archives whose
-release-letter code matches that release are considered.
+the requested release is validated against corpus.yaml (must be an *enabled*
+release), and only archives whose release-letter code matches that release are
+considered — Rel-17 ('h') and Rel-18 ('i') archives never mix within a single
+release's pipeline.
+
+Multi-release: `configs/corpus.yaml` carries an independent allowlist per
+release (`releases.<release>`), so more than one release can be indexed at
+once. `discover_specs(release)` scopes to one release; `discover_all()` browses
+every enabled release (the latter is what a browse-all UI calls).
 
 Reuses the directory-fetch, release-letter, and filename-decoding utilities
 from ingestion.downloader rather than reimplementing them.
@@ -27,19 +34,22 @@ import yaml
 from bs4 import BeautifulSoup
 from loguru import logger
 
-from app.config import get_settings
-from ingestion.downloader import (
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from app.config import get_settings  # noqa: E402
+from ingestion.downloader import (  # noqa: E402
     RELEASE_LETTERS,
     base36_digit_to_int,
     fetch_directory_listing,
 )
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CORPUS_YAML = PROJECT_ROOT / "configs" / "corpus.yaml"
 
-# Series directories to scan under the Rel-18 repository root. These are
+# Series directories to scan under a release repository root. These are
 # series, not individual spec numbers — discovery derives spec numbers from
-# the actual archive filenames it finds.
+# the actual archive filenames it finds. These series are shared across
+# recent 3GPP releases; use --series to scan additional ones.
 DEFAULT_SERIES = ["23", "24", "29", "33", "38"]
 
 # Robust archive filename pattern. Handles:
@@ -121,44 +131,59 @@ def parse_listing(html: str, release_number: int) -> dict[str, DiscoveredSpec]:
     return found
 
 
-def discover_specs(release: str = "Rel-18", series: list[str] | None = None) -> dict[str, DiscoveredSpec]:
-    """Fetch the official Rel-18 directories and return discovered specs.
+def discover_specs(
+    release: str = "Rel-18", series: list[str] | None = None
+) -> dict[str, DiscoveredSpec]:
+    """Fetch the official <release> directories and return discovered specs.
 
-    Reads the repository root and release/version mapping from corpus.yaml so
-    discovery is consistent with the approved allowlist configuration.
+    Reads the repository root and release/version mapping from the per-release
+    config in corpus.yaml, so discovery is consistent with the approved
+    allowlist for that release.
     """
     config = get_settings()
-    if release != config.corpus.get("release"):
-        raise ValueError(
-            f"Release mismatch: requested {release!r} but corpus.yaml allowlist "
-            f"is for {config.corpus.get('release')!r}. Discovery will not mix releases."
-        )
-
-    release_number = config.corpus.get("release_number")
-    if release_number is None:
-        raise ValueError("corpus.yaml is missing 'release_number'.")
-
-    repo_root = config.corpus.get("sources", {}).get("repository_root")
-    if not repo_root:
-        raise ValueError("corpus.yaml sources.repository_root is not configured.")
+    cfg = config.release_config(release)  # raises if release is absent/disabled
+    release_number = cfg["release_number"]
+    repo_root = cfg["sources"]["repository_root"]
 
     series_list = series or DEFAULT_SERIES
     result: dict[str, DiscoveredSpec] = {}
     for s in series_list:
         url = f"{repo_root.rstrip('/')}/{s}_series/"
-        logger.info("Discovering specifications from {}", url)
+        logger.info("Discovering specifications for {} from {}", release, url)
         html = fetch_directory_listing(url)
         result.update(parse_listing(html, release_number))
 
     return result
 
 
-def load_approved_specs() -> list[str]:
-    """Return the spec_numbers currently present in corpus.yaml (approved)."""
-    if not CORPUS_YAML.exists():
+def discover_all(series: list[str] | None = None) -> dict[str, dict[str, DiscoveredSpec]]:
+    """Browse the official directories for every enabled release.
+
+    Returns `{release: {spec_number: DiscoveredSpec}}`. Used by a browse-all UI
+    to present all releases at once; each per-release result is independently
+    release-isolated (never mixed at the archive level).
+    """
+    config = get_settings()
+    all_specs: dict[str, dict[str, DiscoveredSpec]] = {}
+    for release in config.enabled_releases:
+        all_specs[release] = discover_specs(release=release, series=series)
+    return all_specs
+
+
+def load_approved_specs(release: str) -> list[str]:
+    """Return the spec_numbers currently present in corpus.yaml for one release."""
+    return load_approved_specs_from(CORPUS_YAML, release)
+
+
+def load_approved_specs_from(path: Path, release: str) -> list[str]:
+    """spec_numbers approved under `releases.<release>` in a corpus file."""
+    if not path.exists():
         return []
-    corpus = yaml.safe_load(CORPUS_YAML.read_text(encoding="utf-8")) or {}
-    documents = corpus.get("documents", {}) or {}
+    corpus = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    releases = corpus.get("releases", {}) or {}
+    if release not in releases:
+        return []
+    documents = releases[release].get("documents", {}) or {}
     return [doc["spec_number"] for group in documents.values() for doc in group]
 
 
@@ -170,7 +195,9 @@ def parse_add_token(token: str) -> tuple[str, str | None]:
     return token.strip(), None
 
 
-def build_additions(tokens: list[str], discovered: dict[str, DiscoveredSpec]) -> list[tuple[str, str, str]]:
+def build_additions(
+    tokens: list[str], discovered: dict[str, DiscoveredSpec], release: str
+) -> list[tuple[str, str, str]]:
     """Resolve --add tokens into (spec, title, series) tuples.
 
     Fails clearly if a spec is not verifiable in the official directory or if
@@ -181,7 +208,7 @@ def build_additions(tokens: list[str], discovered: dict[str, DiscoveredSpec]) ->
         spec, title = parse_add_token(token)
         if spec not in discovered:
             raise ValueError(
-                f"Specification {spec} was not found in the official Rel-18 "
+                f"Specification {spec} was not found in the official {release} "
                 f"directory; an unverified document cannot be approved."
             )
         series = discovered[spec].series
@@ -194,49 +221,129 @@ def build_additions(tokens: list[str], discovered: dict[str, DiscoveredSpec]) ->
     return additions
 
 
-def add_to_corpus_yaml(additions: list[tuple[str, str, str]], path: Path = CORPUS_YAML) -> None:
-    """Append approved specifications to the extended group of corpus.yaml.
+def add_to_corpus_yaml(
+    additions: list[tuple[str, str, str]], release: str, path: Path = CORPUS_YAML
+) -> None:
+    """Append approved specifications to the `extended` group of one release.
 
-    Performs a targeted text insertion so existing structure, ordering, and
-    comments are preserved as much as possible. Existing entries are never
-    modified or removed.
+    Performs a targeted, comment-preserving text insertion into
+    `releases.<release>.documents.extended` so existing structure, ordering,
+    and comments are preserved. Existing entries are never modified or removed.
     """
-    approved = set(load_approved_specs_from(path))
+    # Only enabled releases may be edited. A disabled release (e.g. the
+    # Rel-16/19/20 scaffolding) has no live pipeline, so approving documents
+    # into it is incoherent — discovery can't even run for a disabled release.
+    corpus = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    releases = corpus.get("releases", {}) or {}
+    if release not in releases:
+        raise ValueError(f"Release {release!r} is not present in {path}.")
+    if not releases[release].get("enabled", False):
+        raise ValueError(
+            f"Release {release!r} is disabled in {path}; set `enabled: true` "
+            "before adding documents."
+        )
+    approved = set(load_approved_specs_from(path, release))
     new_entries = [
         (spec, title, series) for spec, title, series in additions if spec not in approved
     ]
     if not new_entries:
-        logger.info("No new specifications to add; corpus.yaml unchanged.")
+        logger.info("No new specifications to add to {}; corpus.yaml unchanged.", release)
         return
 
     lines = path.read_text(encoding="utf-8").splitlines()
-    insert_idx = len(lines)
-    for i, line in enumerate(lines):
-        if line and not line[0].isspace() and line.split(":", 1)[0] == "sources":
-            insert_idx = i
-            break
+    insert_idx, indent = _extended_insertion_point(lines, release)
 
-    block_lines = []
-    for spec, title, series in new_entries:
-        block_lines.append(f'    - spec_number: "{spec}"')
-        block_lines.append(f'      title: "{title}"')
-        block_lines.append(f'      series: "{series}"')
-    block = "\n" + "\n".join(block_lines)
+    if indent == "[]":
+        # The list was `      extended: []`; replace the inline `[]` with a
+        # real block list carrying the new entries. We build the full block
+        # first and splice it once: inserting each entry at a fixed index in a
+        # loop would *prepend* them and reverse their order.
+        lines[insert_idx] = f"{' ' * 6}extended:"
+        new_block: list[str] = []
+        for spec, title, series in new_entries:
+            new_block.extend(_format_extended_entry(spec, title, series))
+        lines[insert_idx + 1 : insert_idx + 1] = new_block
+    else:
+        # Real block list: splice the new entries in at the end of the list.
+        for spec, title, series in reversed(new_entries):
+            for line in reversed(_format_extended_entry(spec, title, series)):
+                lines[insert_idx:insert_idx] = [line]
 
-    lines.insert(insert_idx, block)
+    # Persist the in-memory mutation. This is the single write-back point for an
+    # allowlist write, so every code path (inline-empty expansion, block-append)
+    # lands on disk atomically.
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    logger.info("Added {} specification(s) to {}", len(new_entries), path)
+    logger.info("Added {} specification(s) to {} [{}]", len(new_entries), path, release)
 
 
-def load_approved_specs_from(path: Path) -> list[str]:
-    if not path.exists():
-        return []
-    corpus = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    documents = corpus.get("documents", {}) or {}
-    return [doc["spec_number"] for group in documents.values() for doc in group]
+def _format_extended_entry(spec: str, title: str, series: str) -> list[str]:
+    """YAML list-item lines for one allowlisted document (8/10-space indent)."""
+    return [
+        f'        - spec_number: "{spec}"',
+        f'          title: "{title}"',
+        f'          series: "{series}"',
+    ]
 
 
-def _print_discovery(discovered: dict[str, DiscoveredSpec], approved: list[str], missing_only: bool) -> None:
+def _release_block_indices(lines: list[str], release: str) -> tuple[int, int]:
+    """Return (start, end) line range for the `  <release>:` block under releases:."""
+    key = f"  {release}:"
+    start = next((i for i, ln in enumerate(lines) if ln == key), None)
+    if start is None:
+        raise ValueError(f"Release {release!r} is not present in corpus.yaml 'releases'.")
+    end = len(lines)
+    for j in range(start + 1, end):
+        raw = lines[j]
+        if raw.strip():  # non-blank
+            indent = len(raw) - len(raw.lstrip(" "))
+            if indent <= 2:  # sibling release key or top-level key
+                end = j
+                break
+    return start, end
+
+
+def _extended_insertion_point(lines: list[str], release: str) -> tuple[int, str]:
+    """Locate where to append to `releases.<release>.documents.extended`.
+
+    Returns `(index, sentinel)` where:
+      - sentinel == "[]" means the list is the inline `      extended: []` form
+        (line at `index` is that line) and the caller should expand it;
+      - otherwise `index` is the line position immediately *before which* new
+        list items should be inserted (the end of the existing list, or right
+        after the `extended:` header for an empty block list).
+    """
+    start, end = _release_block_indices(lines, release)
+    # Match both `extended:` and `extended: []` (the inline-empty form that
+    # this corpus uses for not-yet-populated releases).
+    ext_idx = next(
+        (i for i in range(start, end) if lines[i].strip().startswith("extended:")),
+        None,
+    )
+    if ext_idx is None:
+        raise ValueError(f"No 'extended' allowlist under release {release!r} in corpus.yaml.")
+
+    # Inline empty form, e.g. `      extended: []`. The whole line is the
+    # sentinel; the caller expands it into a real block list.
+    if lines[ext_idx].strip() == "extended: []":
+        return ext_idx, "[]"
+
+    # Block-list form (`extended:` on its own line, or already populated).
+    # Walk forward past existing list items (indent >= 8) to find the end.
+    ins = ext_idx + 1
+    for i in range(ext_idx + 1, end):
+        raw = lines[i]
+        if not raw.strip():
+            continue  # preserve blank lines but don't stop counting the list
+        indent = len(raw) - len(raw.lstrip(" "))
+        if indent < 8:
+            break  # left the list (e.g. next sibling / next release)
+        ins = i + 1
+    return ins, ""
+
+
+def _print_discovery(
+    discovered: dict[str, DiscoveredSpec], approved: list[str], missing_only: bool, release: str
+) -> None:
     approved_set = set(approved)
     by_series: dict[str, list[DiscoveredSpec]] = {}
     for spec in discovered.values():
@@ -245,11 +352,12 @@ def _print_discovery(discovered: dict[str, DiscoveredSpec], approved: list[str],
         by_series.setdefault(spec.series, []).append(spec)
 
     if not by_series:
-        logger.info("No specifications to display.")
+        logger.info("No specifications to display for {}.", release)
         return
 
+    logger.info("Release {} — discovered/allowlist status:", release)
     for series in sorted(by_series):
-        logger.info("Series {}:", series)
+        logger.info("  Series {}:", series)
         for spec in sorted(by_series[series], key=lambda s: s.spec_number):
             status = "approved" if spec.spec_number in approved_set else "new / not approved"
             logger.info("  {}  ({} {})  [{}]", spec.spec_number, spec.version, spec.filename, status)
@@ -259,14 +367,21 @@ def main() -> int:
     from app.logging_config import configure_logging
 
     configure_logging()
+    config = get_settings()
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--release", default="Rel-18", help="Target release (must match corpus.yaml)")
-    parser.add_argument("--missing", action="store_true", help="Show only specs absent from corpus.yaml")
+    parser.add_argument(
+        "--release",
+        default=None,
+        help="Target release (must be an enabled release in corpus.yaml). "
+        f"Default: {config.default_release}.",
+    )
+    parser.add_argument("--missing", action="store_true", help="Show only specs absent from corpus.yaml for that release")
     parser.add_argument(
         "--add",
         nargs="+",
         metavar="SPEC[=TITLE]",
-        help="Approve verified specs, e.g. --add 23.503='System architecture ...'",
+        help="Approve verified specs into the release's `extended` allowlist, "
+        "e.g. --add 23.503='System architecture ...'.",
     )
     parser.add_argument(
         "--series",
@@ -276,25 +391,34 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    release = args.release or config.default_release
+    if release not in config.enabled_releases:
+        logger.error(
+            "Release {} is not enabled in corpus.yaml. Enabled: {}",
+            release,
+            config.enabled_releases,
+        )
+        return 1
+
     try:
-        discovered = discover_specs(release=args.release, series=args.series)
+        discovered = discover_specs(release=release, series=args.series)
     except ValueError as exc:
         logger.error("Discovery failed: {}", exc)
         return 1
 
-    approved = load_approved_specs()
+    approved = load_approved_specs(release)
 
     if args.add:
         try:
-            additions = build_additions(args.add, discovered)
+            additions = build_additions(args.add, discovered, release=release)
         except ValueError as exc:
             logger.error("Cannot add specifications: {}", exc)
             return 1
-        add_to_corpus_yaml(additions)
-        logger.info("Approved specifications written to corpus.yaml.")
+        add_to_corpus_yaml(additions, release=release)
+        logger.info("Approved specifications written to corpus.yaml [{}].", release)
         return 0
 
-    _print_discovery(discovered, approved, missing_only=args.missing)
+    _print_discovery(discovered, approved, missing_only=args.missing, release=release)
     return 0
 
 

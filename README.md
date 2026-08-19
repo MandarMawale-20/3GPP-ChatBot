@@ -33,14 +33,15 @@ a clear explanation rather than producing a plausible-sounding guess.
 - **Deterministic ingestion** — content hashing and UUID5 IDs make ingestion
   idempotent.
 - **Safe archive extraction** — protects against ZIP-slip paths.
-- **Evaluation harness** — retrieval, generation, ablation, and RAGAS metrics.
+- **Evaluation harness** — retrieval, generation, and RAGAS metrics.
 
 ---
 
 ## Supported Release Modes
 
-> Release-18 is currently the primary/default corpus, **not** a hard limit on
-> what the system can query.
+> All *enabled* releases in `configs/corpus.yaml` are first-class indexed
+> corpora (Rel-18 is the configured default, **not** a hard limit on what the
+> system can query).
 
 ```text
 Supports release-aware retrieval across 3GPP releases.
@@ -119,7 +120,8 @@ docker run -p 6333:6333 -p 6334:6334 \
 ### 4. Discover available specifications
 
 ```bash
-python scripts/discover_corpus.py --missing
+python scripts/discover_corpus.py --missing                  # defaults to default_release (Rel-18)
+python scripts/discover_corpus.py --missing --release Rel-17
 ```
 
 This inspects the official 3GPP directory and reports which approved specs
@@ -128,14 +130,17 @@ are not yet in the allowlist. **Read-only** — never downloads or indexes.
 ### 5. Download and process the corpus
 
 ```bash
-# Full pipeline (download → validate → parse → chunk → JSONL) for the
-# entire allowlist:
+# Full pipeline for every allowlisted spec across all *enabled* releases:
 python scripts/download.py --all
 
-# Or a single specification:
-python scripts/download.py 24.501
+# Single spec (defaults to TARGET_RELEASE from .env, e.g. Rel-18):
+python scripts/download.py 23.501
 
-# Or parse a locally-downloaded DOCX (no network):
+# Single spec in an explicit release:
+python scripts/download.py 23.501 --release Rel-17
+
+# Parse a locally-downloaded DOCX (no network); --release defaults to
+# TARGET_RELEASE and controls the output namespace:
 python scripts/preprocess.py path/to/24501-i90.docx \
   --spec 24.501 --series 24 --version 18.9.0 \
   --title "Non-Access-Stratum (NAS) protocol for 5G System (5GS)"
@@ -147,8 +152,9 @@ python scripts/build_jsonl.py
 ### 6. Ingest into Qdrant
 
 ```bash
-python scripts/ingest_qdrant.py                # all processed JSONL files
-python scripts/ingest_qdrant.py --spec 24.501  # just one
+python scripts/ingest_qdrant.py                          # ingest all processed JSONL (all releases)
+python scripts/ingest_qdrant.py --spec 23.501            # one spec across every release it was processed for
+python scripts/ingest_qdrant.py --spec 23.501 --release Rel-18  # one spec in one release
 ```
 
 BGE-M3 model weights are downloaded from HuggingFace Hub on first run
@@ -202,6 +208,11 @@ The UI's **Release** dropdown supports an "All Releases" option that searches
 across every indexed release simultaneously. When a specific release is
 selected, retrieval is strictly scoped to that release — a Rel-18 query will
 **never** retrieve Rel-17 content.
+
+> Release scope is chosen via the API `release` field or the UI dropdown. The
+> query parser extracts **specification numbers** (e.g. `24.501`) automatically,
+> but release identifiers must be supplied explicitly — they are not parsed from
+> free text.
 
 ---
 
@@ -419,9 +430,12 @@ query about `24.501` must never retrieve `23.501` chunks. This is enforced at
 **three** levels:
 
 1. **Configuration guard** — `app/config.py` raises `ValueError` at startup if
-   the env-level `TARGET_RELEASE` does not match `configs/corpus.yaml`'s
-   declared release. Cross-release contamination is rejected before the
-   process starts.
+   (a) `configs/corpus.yaml` uses the legacy single-release schema (top-level
+   `release`/`documents` instead of the `releases:` map), or (b) the env-level
+   `TARGET_RELEASE` is not one of the `enabled: true` releases. This ensures
+   every release addressed by the pipeline — including the default release used
+   by unscoped CLI commands — is explicit and enabled. Cross-release
+   contamination is rejected before the process starts.
 2. **Qdrant payload filter** — `build_release_spec_filter()` applies a
    `release` match-condition to every query when a release is specified. The
    optional `spec_number` condition is added on top. This filter is applied
@@ -438,29 +452,65 @@ query about `24.501` must never retrieve `23.501` chunks. This is enforced at
 ## Corpus Management
 
 The system ingests only what `configs/corpus.yaml` authorizes. This file is a
-**release-scoped allowlist** — it is not a manually-populated inventory of every
-3GPP document that exists. Instead, it is generated and validated by
+**multi-release allowlist**: it carries an independent `documents` allowlist per
+release under `releases:` (e.g. `Rel-17`, `Rel-18`), plus a top-level
+`default_release`. It is not a manually-populated inventory of every 3GPP
+document that exists. Instead, it is generated and validated by
 `scripts/discover_corpus.py`, which queries the official 3GPP repository
-directory and cross-checks candidates against the allowlist.
+directory and cross-checks candidates against the allowlist for a given release.
 
 ### Discover new specifications
 
 ```bash
 python scripts/discover_corpus.py --missing
+python scripts/discover_corpus.py --missing --release Rel-17
 ```
 
 Reports specifications found in the official 3GPP directory but not yet in the
-allowlist. **Read-only** — never downloads, fetches, or indexes.
+allowlist for the requested release. **Read-only** — never downloads, fetches,
+or indexes. Omit `--release` (defaults to `default_release`).
 
 ### Approve a specification
 
 ```bash
-python scripts/discover_corpus.py --add 24.502 \
-  --title "Non-Access-Stratum (NAS) protocol for 5G System (5GS)"
+python scripts/discover_corpus.py \
+  --add "24.502=Non-Access-Stratum (NAS) protocol for 5G System (5GS)"
 ```
 
-Requires verification against the discovered set; titles are never invented.
-Existing structure and comments in `corpus.yaml` are preserved.
+The title is supplied **inline** (`SPEC=TITLE`); there is no separate `--title`
+flag. The title must be the official 3GPP title — it is never invented. Requires
+verification against the discovered set: the spec number must already appear in a
+`--missing` run for the target release (i.e. it must exist in the official
+directory for that release). `--add` inserts into the `extended` allowlist of
+that release only (`--release` selects it; defaults to `default_release`). All
+existing entries, structure, and comments in `corpus.yaml` are preserved; the
+same spec added twice is a no-op.
+
+### Approve via the GUI (non-technical users)
+
+For users who prefer a form over the command line, a Streamlit management UI
+performs the same discover → select → title → approve flow and writes through the
+identical validated writer:
+
+```bash
+streamlit run frontend/corpus_manager.py
+```
+
+The UI lets the user:
+- **select a release** (only enabled releases are offered; release isolation is
+  enforced at the archive filename-letter level, e.g. Rel-17 `'h'`, Rel-18 `'i'`),
+- click **Discover official specs** to fetch the 3GPP directory for that release
+  (cached for 5 minutes) and compare it with the approved allowlist,
+- **check** the specs they want to approve (already-approved specs are read-only),
+- **enter each spec's official title manually** in the `title` column, and click
+  **Approve**, which appends the entries to `releases.<release>.documents.extended`
+  in `configs/corpus.yaml` via `add_to_corpus_yaml` (comment-preserving, idempotent,
+  rejects blank/placeholder titles).
+
+Titles are never invented: a selection cannot be approved until every checked spec
+has a non-empty title. After approving, re-run
+`python scripts/download.py --release <R> --missing` (or `--all`) to ingest the
+newly allowlisted documents.
 
 ### Download approved corpus
 
@@ -469,7 +519,10 @@ python scripts/download.py --all
 ```
 
 Runs the full pipeline (download → validate → extract → parse → chunk → JSONL)
-for every allowlisted document.
+for every allowlisted document across **all enabled releases** (each release's
+allowlist is processed independently; see `releases:` in `configs/corpus.yaml`).
+To scope to one release/spec, pass its arguments instead of `--all`
+(e.g. `python scripts/download.py 23.501 --release Rel-18`).
 
 ### Corpus validation
 
@@ -482,17 +535,23 @@ pydantic model; reports corpus stats.
 
 ### Discovery mechanism
 
-`discover_corpus.py` queries the official 3GPP series directories
-(`configs/corpus.yaml`'s `sources.repository_root`), parses archive filenames
-(which encode spec number and version using a base-36 release-letter scheme),
-groups them by series and spec, and selects the highest-versioned archive per
-spec. It then compares the discovered set against the `documents` entries
-already approved in `corpus.yaml`.
+`discover_corpus.py` queries the official 3GPP series directories for a release
+(`configs/corpus.yaml`'s `releases.<release>.sources.repository_root`), parses
+archive filenames (which encode spec number and version using a base-36
+release-letter scheme), groups them by series and spec, and selects the
+highest-versioned archive per spec. It then compares the discovered set against
+the `documents` entries already approved in `corpus.yaml` for that release.
+The release-isolation guarantee is enforced at the filename level: only archives
+whose release-letter code matches the requested release are considered (Rel-17
+uses 'h', Rel-18 uses 'i', …), so archives never mix across releases.
+
+`discover_specs(release)` scopes to one release; `discover_all()` browses every
+*enabled* release and is what a browse-all UI calls.
 
 This separation ensures the allowlist remains the **sole source of truth** for
 what the downloader and ingestion pipeline may process. Discovery validates the
-requested release against `corpus.yaml` and only considers archives whose
-release-letter code matches.
+requested release against `corpus.yaml` (it must be an *enabled* release) and
+only considers archives whose release-letter code matches.
 
 ---
 
@@ -500,11 +559,11 @@ release-letter code matches.
 
 | Script | Purpose |
 |---|---|
-| `scripts/download.py` | Full pipeline for one or more specs (download → validate → extract → parse → chunk → JSONL). `--all` processes the entire allowlist. |
+| `scripts/download.py` | Full pipeline for one or more specs (download → validate → extract → parse → chunk → JSONL). `--all` processes every allowlisted document across all **enabled releases**; `--release <R> <spec>` or `<spec>` (with `--release`) scopes to one. |
 | `scripts/preprocess.py` | Parse an already-present local DOCX into JSONL (useful for testing the parser against real samples without network). |
 | `scripts/build_jsonl.py` | Validate every `data/processed/*.jsonl` file by re-parsing through the `Chunk` pydantic model; reports corpus stats. |
 | `scripts/ingest_qdrant.py` | Embed all processed JSONL files with BGE-M3 and upsert into Qdrant. |
-| `scripts/discover_corpus.py` | Inspect the 3GPP directory for new/approved specs. Read-only: never downloads or indexes. `--add` promotes verified candidates to the allowlist. |
+| `scripts/discover_corpus.py` | Inspect the 3GPP directory for new/approved specs, per release. Read-only: never downloads or indexes. `--add` promotes verified candidates into `releases.<release>.documents.extended`; `--missing` lists un-approved specs; `discover_all()` (programmatic) browses every enabled release from a UI. |
 
 ### Pipeline stages
 
@@ -703,7 +762,6 @@ Every question carries an `answerable` boolean and, for answerable questions, an
 |---|---|---|
 | `evaluation/evaluate_retrieval.py` | `recall_at_5/10/20`, `context_precision_at_5` | Runs each answerable question through the retriever directly (bypassing LLM); checks whether a retrieved chunk matches the `expected_spec` (and clause prefix). |
 | `evaluation/evaluate_generation.py` | `correct_abstentions`, `false_answer_rate`, `unnecessary_abstention_rate`, `citation_accuracy`, `hallucination_rate` | Runs the full grounded-generation pipeline for every question; scores outcomes against `answerable` labels. |
-| `evaluation/ablation.py` | `recall_at_10` | Three experiments: A) dense-only, B) dense+sparse (RRF), C) dense+sparse+reranker. |
 | `evaluation/ragas_eval.py` | `faithfulness`, `context_precision`, `context_recall` | LLM-judge metrics via ragas + Gemini. Reference answers are generated by a separate Gemini judge and cached. `--fake` mode dumps the assembled dataset without network. |
 
 ### Running evaluation
@@ -711,7 +769,6 @@ Every question carries an `answerable` boolean and, for answerable questions, an
 ```bash
 python evaluation/evaluate_retrieval.py    # recall@k, context precision
 python evaluation/evaluate_generation.py   # citation accuracy, abstention rates
-python evaluation/ablation.py              # dense vs. +sparse vs. +reranker
 python evaluation/ragas_eval.py --fake     # assemble ragas dataset (no network)
 python evaluation/ragas_eval.py           # real Gemini judge (requires GEMINI_API_KEY)
 ```
@@ -757,11 +814,12 @@ python -m pytest tests/ -v
   Retrieval/generation metrics and the `EVIDENCE_SCORE_THRESHOLD` have not been
   calibrated against real documents. The test suite uses synthetic fixtures and
   fake providers.
-- **Default corpus scope.** The repository currently ships with a Release-18
-  corpus (`configs/corpus.yaml`). Additional releases can be indexed through
-  the release-aware corpus configuration and queried independently or through
-  all-release search. The retrieval layer is release-agnostic — the `release`
-  query parameter is a first-class API field that flows through to the Qdrant
+- **Corpus scope is release-driven.** `configs/corpus.yaml` carries an
+  allowlist per *enabled* release (Rel-17 and Rel-18 by default). Each release
+  is indexed independently under its own release namespace; queries scope to a
+  specific release or to all enabled releases via the `release` API field / UI
+  dropdown. The retrieval layer is release-agnostic — the `release` query
+  parameter is a first-class API field that flows through to the Qdrant
   metadata filter.
 - **Evaluation dataset size.** `evaluation/dataset.json` has 22 questions;
   100–150 questions are recommended for statistically meaningful thresholds and
@@ -817,22 +875,20 @@ python -m pytest tests/ -v
 │   ├── citations/
 │   │   ├── generator.py          # [E<n>] tag → citation mapping
 │   │   └── validator.py          # Citation tag validation
-│   ├── ingestion/
-│   │   ├── downloader.py         # Resolve + download latest archive (3GPP filename conventions)
-│   │   ├── validator.py          # Filename/version/SHA256/allowlist validation
-│   │   ├── archive.py            # Safe ZIP extraction (zip-slip protected)
-│   │   ├── doc_converter.py      # Legacy DOC → DOCX via LibreOffice
-│   │   ├── docx_parser.py        # OpenXML order-preserving DOCX parser
-│   │   ├── structure_parser.py   # Clause/table/procedure/ASN.1/annex detection
-│   │   ├── table_parser.py       # Merged-cell table normalization
-│   │   ├── asn1_parser.py        # ASN.1 block detection
-│   │   ├── chunker.py            # Hierarchical clause-aware chunking
-│   │   └── pipeline.py           # download → validate → extract → parse → chunk → JSONL
-│   └── models/
-│       └── schema.py             # Chunk / TableData / TableCell / SourceDocument models
 ├── configs/
-│   ├── corpus.yaml               # Document allowlist (release-scoped)
+│   ├── corpus.yaml               # Multi-release document allowlist (releases: map)
 │   └── settings.yaml             # Chunking defaults
+├── ingestion/
+│   ├── downloader.py             # Resolve + download latest archive (3GPP filename conventions)
+│   ├── validator.py              # Filename/version/SHA256/allowlist validation
+│   ├── archive.py                # Safe ZIP extraction (zip-slip protected)
+│   ├── doc_converter.py          # Legacy DOC → DOCX via LibreOffice
+│   ├── docx_parser.py            # OpenXML order-preserving DOCX parser
+│   ├── structure_parser.py       # Clause/table/procedure/ASN.1/annex detection
+│   ├── table_parser.py           # Merged-cell table normalization
+│   ├── asn1_parser.py            # ASN.1 block detection
+│   ├── chunker.py                # Hierarchical clause-aware chunking
+│   └── pipeline.py               # download → validate → extract → parse → chunk → JSONL
 ├── scripts/
 │   ├── download.py               # Download + ingest one/many/all specs
 │   ├── preprocess.py             # Parse a local DOCX into JSONL
@@ -846,7 +902,8 @@ python -m pytest tests/ -v
 │   ├── ragas_eval.py             # LLM-judge metrics (faithfulness, context precision/recall)
 │   └── results/                  # Evaluation output
 ├── frontend/
-│   └── streamlit_app.py          # Chat UI
+│   ├── streamlit_app.py          # Chat UI
+│   └── corpus_manager.py         # Corpus allowlist management UI
 ├── tests/                        # Unit tests (synthetic fixtures, in-memory Qdrant)
 ├── requirements.txt
 └── .env.example

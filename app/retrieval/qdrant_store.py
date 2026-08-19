@@ -57,21 +57,36 @@ def retrieve_existing_hashes(client: QdrantClient, collection_name: str) -> dict
     Reads only the `chunk_id` and `content_hash` payload fields (the
     `with_payload` projection) so the scan stays cheap even for large
     collections.
+
+    Scroll is paginated via `offset`: Qdrant returns at most `limit` points
+    per call, so a collection larger than 10k points would otherwise be
+    truncated to its first batch. Without pagination, `skip_unchanged` would
+    silently fail for every point beyond 10k — re-embedding and re-upserting
+    most of the corpus on each ingest run. This matters now that the corpus
+    spans multiple releases and can exceed 10k chunks.
     """
     existing: dict[str, str] = {}
     if not client.collection_exists(collection_name):
         return existing
-    for point in client.scroll(
-        collection_name=collection_name,
-        with_payload=["chunk_id", "content_hash"],
-        with_vectors=False,
-        limit=10_000,
-    )[0]:
-        payload = point.payload or {}
-        chunk_id = payload.get("chunk_id")
-        content_hash = payload.get("content_hash")
-        if chunk_id is not None:
-            existing[chunk_id] = content_hash
+
+    offset: int | None = None
+    while True:
+        points, next_offset = client.scroll(
+            collection_name=collection_name,
+            with_payload=["chunk_id", "content_hash"],
+            with_vectors=False,
+            limit=10_000,
+            offset=offset,
+        )
+        for point in points:
+            payload = point.payload or {}
+            chunk_id = payload.get("chunk_id")
+            content_hash = payload.get("content_hash")
+            if chunk_id is not None:
+                existing[chunk_id] = content_hash
+        if next_offset is None:
+            break
+        offset = next_offset
     return existing
 
 

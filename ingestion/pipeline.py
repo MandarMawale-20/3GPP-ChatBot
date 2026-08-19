@@ -92,28 +92,55 @@ def read_jsonl(input_path: Path) -> list[Chunk]:
     return chunks
 
 
-def _find_title_in_corpus(spec_number: str) -> str:
-    corpus_documents = get_settings().corpus["documents"]
-    for group in corpus_documents.values():
+def _find_title_in_corpus(spec_number: str, release: str) -> str:
+    """Look up the allowlisted title for a spec within one release.
+
+    Falls back to the bare spec number (never a fabricated title) if the spec
+    isn't allowlisted — the caller is still responsible for validating the
+    spec against the official directory before indexing.
+    """
+    cfg = get_settings().release_config(release)
+    for group in cfg.get("documents", {}).values():
         for doc in group:
             if doc["spec_number"] == spec_number:
                 return doc["title"]
     return spec_number
 
 
-def download_and_process(spec_number: str, series: str) -> list[Chunk]:
+def _resolve_release(release: str | None) -> tuple[str, dict]:
+    """Resolve a release name to (release, release_config), defaulting to the
+    deployment default when unspecified."""
+    if release is None:
+        release = get_settings().default_release
+    cfg = get_settings().release_config(release)
+    return release, cfg
+
+
+def download_and_process(
+    spec_number: str,
+    series: str,
+    release: str | None = None,
+    title: str | None = None,
+) -> list[Chunk]:
     """Full remote pipeline for a single spec, driven by `configs/corpus.yaml`.
+
+    `release` selects which release's allowlist + repository root to use; it
+    defaults to the deployment `default_release` (env TARGET_RELEASE). Each
+    release is namespaced on disk under its own subdirectory of `data/raw` and
+    `data/processed` so the same spec number can coexist across releases
+    (e.g. 24.501 in both Rel-17 and Rel-18) without file/ provenance
+    collisions.
 
     Requires outbound network access to the official 3GPP repository. Call
     `process_local_document()` directly if the DOCX file is already present.
     """
-    config = get_settings()
-    corpus = config.corpus
-    release: str = corpus["release"]
-    release_number: int = corpus["release_number"]
-    repo_root: str = corpus["sources"]["repository_root"]
-    series_url = f"{repo_root.rstrip('/')}/{series}_series/"
+    release, release_cfg = _resolve_release(release)
+    release_number: int = release_cfg["release_number"]
+    repo_root: str = release_cfg["sources"]["repository_root"]
+    if title is None:
+        title = _find_title_in_corpus(spec_number, release)
 
+    series_url = f"{repo_root.rstrip('/')}/{series}_series/"
     html = fetch_directory_listing(series_url)
     archives = parse_archive_links(html, series_url)
     archive = find_latest_archive(archives, spec_number, release_number)
@@ -135,7 +162,8 @@ def download_and_process(spec_number: str, series: str) -> list[Chunk]:
         doc_path = convert_doc_to_docx(doc_path, extract_dir)
 
     # Persist provenance metadata alongside the raw file; citation
-    # generation and audit trails trace back to this.
+    # generation and audit trails trace back to this. Namespaced by release so
+    # a spec present in multiple releases keeps separate provenance records.
     source_doc = SourceDocument(
         spec_number=validated.spec_number,
         release=validated.release,
@@ -145,7 +173,7 @@ def download_and_process(spec_number: str, series: str) -> list[Chunk]:
         downloaded_at=datetime.now(timezone.utc).isoformat(),
         source_url=archive.url,
     )
-    metadata_path = METADATA_DIR / f"{spec_number}.json"
+    metadata_path = METADATA_DIR / release.lower() / f"{spec_number}.json"
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
     metadata_path.write_text(source_doc.model_dump_json(indent=2), encoding="utf-8")
 
@@ -156,10 +184,12 @@ def download_and_process(spec_number: str, series: str) -> list[Chunk]:
         release=validated.release,
         release_number=validated.release_number,
         version=validated.version,
-        title=_find_title_in_corpus(spec_number),
+        title=title,
         source_file=validated.filename,
         source_url=archive.url,
     )
 
-    write_jsonl(chunks, PROCESSED_DIR / f"{spec_number}.jsonl")
+    # Namespaced by release: the same spec_number resolves to distinct files
+    # per release (Rel-17 24.501 vs Rel-18 24.501).
+    write_jsonl(chunks, PROCESSED_DIR / release.lower() / f"{spec_number}.jsonl")
     return chunks

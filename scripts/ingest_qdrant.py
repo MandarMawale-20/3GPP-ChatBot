@@ -4,6 +4,7 @@
 Usage:
     python scripts/ingest_qdrant.py
     python scripts/ingest_qdrant.py --spec 24.501
+    python scripts/ingest_qdrant.py --spec 24.501 --release Rel-17
 """
 
 from __future__ import annotations
@@ -23,17 +24,36 @@ from app.retrieval.qdrant_store import ensure_collection, get_client, upsert_chu
 from ingestion.pipeline import PROCESSED_DIR, read_jsonl
 
 
+def _resolve_jsonl_files(spec: str | None, release: str | None) -> list[Path]:
+    """Locate JSONL files under data/processed/<release>/<spec>.jsonl.
+
+    `--spec` alone matches that spec across every enabled release; `--spec`
+    plus `--release` narrows to one. With no args, all processed files
+    (recursive) are ingested.
+    """
+    if spec and release:
+        return [PROCESSED_DIR / release.lower() / f"{spec}.jsonl"]
+    if spec:
+        # Same spec may exist in multiple enabled releases; glob them all.
+        return sorted(PROCESSED_DIR.rglob(f"{spec}.jsonl"))
+    return sorted(PROCESSED_DIR.rglob("*.jsonl"))
+
+
 def main() -> int:
     configure_logging()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--spec", help="Only ingest one spec's JSONL file, e.g. 24.501")
+    parser.add_argument(
+        "--release",
+        default=None,
+        help="Release scope (with --spec). Ignored without --spec. "
+        "Default: all releases.",
+    )
     args = parser.parse_args()
 
     config = get_settings().settings
 
-    jsonl_files = (
-        [PROCESSED_DIR / f"{args.spec}.jsonl"] if args.spec else sorted(PROCESSED_DIR.glob("*.jsonl"))
-    )
+    jsonl_files = _resolve_jsonl_files(args.spec, args.release)
     jsonl_files = [p for p in jsonl_files if p.exists()]
     if not jsonl_files:
         logger.error("No JSONL files found in {}", PROCESSED_DIR)

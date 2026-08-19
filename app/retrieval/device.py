@@ -30,7 +30,7 @@ def get_device() -> str:
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
     except ImportError:
-        # No torch at all ⇒ CPU is the only correct answer.
+        # No torch at all => CPU is the only correct answer.
         device = "cpu"
 
     logger.debug(f"Auto-selected compute device: {device}")

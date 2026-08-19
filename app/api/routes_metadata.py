@@ -20,8 +20,12 @@ router = APIRouter()
 def documents() -> DocumentsResponse:
     config = get_settings()
     docs = [
-        DocumentInfo(spec_number=d["spec_number"], title=d["title"], series=d["series"])
-        for group in config.corpus.get("documents", {}).values()
-        for d in group
+        DocumentInfo(
+            spec_number=d["spec_number"],
+            title=d["title"],
+            series=d["series"],
+            release=d["release"],
+        )
+        for d in config.allowed_documents()  # all enabled releases
     ]
-    return DocumentsResponse(release=config.settings.target_release, documents=docs)
+    return DocumentsResponse(release=config.default_release, documents=docs)

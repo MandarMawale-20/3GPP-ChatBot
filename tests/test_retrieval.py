@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from app.models.schema import Chunk, ContentType
-from app.retrieval.dense import RetrievedChunk, dense_search
+from app.retrieval.dense import dense_search
 from app.retrieval.embeddings import FakeEmbeddingProvider
 from app.retrieval.hybrid import build_release_spec_filter
 from app.retrieval.qdrant_store import ensure_collection, get_client, upsert_chunks
