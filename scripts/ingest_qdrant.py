@@ -28,8 +28,7 @@ def _resolve_jsonl_files(spec: str | None, release: str | None) -> list[Path]:
     """Locate JSONL files under data/processed/<release>/<spec>.jsonl.
 
     `--spec` alone matches that spec across every enabled release; `--spec`
-    plus `--release` narrows to one. With no args, all processed files
-    (recursive) are ingested.
+    plus `--release` narrows to one. No args → all processed files (recursive).
     """
     if spec and release:
         return [PROCESSED_DIR / release.lower() / f"{spec}.jsonl"]

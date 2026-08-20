@@ -37,8 +37,8 @@ from loguru import logger
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.config import get_settings  # noqa: E402
-from ingestion.downloader import (  # noqa: E402
+from app.config import get_settings
+from ingestion.downloader import (
     RELEASE_LETTERS,
     base36_digit_to_int,
     fetch_directory_listing,
@@ -168,6 +168,134 @@ def discover_all(series: list[str] | None = None) -> dict[str, dict[str, Discove
     for release in config.enabled_releases:
         all_specs[release] = discover_specs(release=release, series=series)
     return all_specs
+
+
+def fetch_available_releases() -> list[str]:
+    """Return every release directory published on the official 3GPP FTP,
+    ascending by release number, e.g. ``['Rel-8', ..., 'Rel-20']``.
+
+    Used by the Corpus Manager to offer a *live* dropdown of all releases
+    instead of the static enabled set in corpus.yaml. Parses the ``latest/``
+    index page for ``Rel-<n>`` folder links.
+    """
+    ROOT = "https://www.3gpp.org/ftp/specs/latest/"
+    html = fetch_directory_listing(ROOT)
+    soup = BeautifulSoup(html, "html.parser")
+    found: list[int] = []
+    for anchor in soup.find_all("a", href=True):
+        href = anchor["href"].rstrip("/")
+        name = href.rsplit("/", 1)[-1]
+        m = re.match(r"^Rel-(\d+)$", name)
+        if m:
+            found.append(int(m.group(1)))
+    # Ascending, stable. The UI may reverse for display.
+    return [f"Rel-{n}" for n in sorted(found)]
+
+
+def discover_release(
+    release: str, series: list[str] | None = None
+) -> dict[str, DiscoveredSpec]:
+    """Fetch the official directory for ANY release, even one not yet present
+    or enabled in corpus.yaml.
+
+    Differs from :func:`discover_specs` (which enforces that the release be
+    enabled/configured): this backs the Corpus Manager's live dropdown, where a
+    human may browse and approve a release that has no config block yet.
+    Resolution order for the release number / repository root:
+
+      1. the per-release block in corpus.yaml (if present & parseable), else
+      2. derived from the 3GPP live FTP naming (``Rel-<n>`` -> ``n``, repo
+         under ``latest/Rel-<n>/``).
+
+    Returns ``{}`` if the release cannot be resolved or its directory is
+    unreachable. Release isolation is enforced exactly as in ``discover_specs``
+    (the archive filename-letter code still must match the release).
+    """
+    # 1. Prefer the configured block (release_number + repository_root).
+    try:
+        cfg = get_settings().release_config(release)
+        release_number = cfg["release_number"]
+        repo_root = cfg["sources"]["repository_root"]
+    except Exception:
+        # 2. Fallback derivation from the live FTP convention.
+        m = re.match(r"^Rel-(\d+)$", release)
+        if not m:
+            logger.error("Cannot resolve release {!r} without a corpus.yaml block.", release)
+            return {}
+        release_number = int(m.group(1))
+        repo_root = f"https://www.3gpp.org/ftp/specs/latest/{release}/"
+
+    series_list = series or DEFAULT_SERIES
+    result: dict[str, DiscoveredSpec] = {}
+    for s in series_list:
+        url = f"{repo_root.rstrip('/')}/{s}_series/"
+        try:
+            html = fetch_directory_listing(url)
+        except Exception as exc:
+            logger.warning("Could not fetch {}: {}", url, exc)
+            continue
+        result.update(parse_listing(html, release_number))
+    return result
+
+
+def ensure_release_present(release: str, path: Path = CORPUS_YAML) -> None:
+    """Create an enabled release block in corpus.yaml if it doesn't exist yet.
+
+    Lets the Corpus Manager approve specs for a live-discovered release that
+    has no config block (e.g. an unconfigured Rel-19). If the block exists but
+    is disabled, it is flipped to ``enabled: true`` so the new documents can be
+    indexed. Existing entries are never modified or removed.
+    """
+    m = re.match(r"^Rel-(\d+)$", release)
+    if not m:
+        raise ValueError(f"Malformed release identifier: {release!r}")
+    release_number = int(m.group(1))
+
+    corpus = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    releases = corpus.get("releases", {}) or {}
+    if release in releases:
+        if not releases[release].get("enabled", True):
+            _set_enabled(path, release, True)
+        return
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    rel_idx = next((i for i, ln in enumerate(lines) if ln.strip() == "releases:"), None)
+    if rel_idx is None:
+        raise ValueError("No 'releases:' key found in corpus.yaml.")
+    # Insert the new block (with a leading blank line) right after `releases:`.
+    lines[rel_idx + 1 : rel_idx + 1] = _format_release_block(release, release_number)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    logger.info("Created release block {} in {}", release, path)
+
+
+def _set_enabled(path: Path, release: str, enabled: bool) -> None:
+    """Flip the `enabled:` flag for one release block (text edit, no reformat)."""
+    lines = path.read_text(encoding="utf-8").splitlines()
+    start, end = _release_block_indices(lines, release)
+    for i in range(start, end):
+        if lines[i].strip().startswith("enabled:"):
+            indent = len(lines[i]) - len(lines[i].lstrip(" "))
+            lines[i] = f"{' ' * indent}enabled: {str(enabled).lower()}"
+            break
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _format_release_block(release: str, release_number: int) -> list[str]:
+    """YAML lines for a freshly-created enabled release block (2-space indent)."""
+    repo_root = f"https://www.3gpp.org/ftp/specs/latest/{release}/"
+    return [
+        "",
+        f"  {release}:",
+        f"    release_number: {release_number}",
+        "    enabled: true",
+        "    sources:",
+        '      portal: "https://portal.3gpp.org/"',
+        f'      repository_root: "{repo_root}"',
+        '      forge: "https://forge.3gpp.org/swagger/tools/parser.html"',
+        "    documents:",
+        "      core: []",
+        "      extended: []",
+    ]
 
 
 def load_approved_specs(release: str) -> list[str]:

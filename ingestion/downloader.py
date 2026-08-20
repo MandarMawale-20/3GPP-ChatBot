@@ -1,6 +1,6 @@
 """Programmatic download of official 3GPP specification archives.
 
-Only the allowlisted Rel-18 documents in `configs/corpus.yaml` may be
+Only documents allowlisted per-release in `configs/corpus.yaml` may be
 fetched, and only from the official 3GPP repository — never a mirror,
 never a broader recursive crawl.
 
@@ -33,6 +33,9 @@ from tenacity import (
 )
 
 # 3GPP release -> filename letter-code convention.
+# 15=f, 16=g, 17=h, 18=i, 19=j, 20=k, 21=l, 22=m, 23=n, 24=o, 25=p,
+# 26=q, 27=r, 28=s, 29=t, 30=u. (3GPP continued the base-36 sequence past
+# Rel-20; newer releases are appended here as they are published.)
 RELEASE_LETTERS: dict[int, str] = {
     15: "f",
     16: "g",
@@ -40,6 +43,16 @@ RELEASE_LETTERS: dict[int, str] = {
     18: "i",
     19: "j",
     20: "k",
+    21: "l",
+    22: "m",
+    23: "n",
+    24: "o",
+    25: "p",
+    26: "q",
+    27: "r",
+    28: "s",
+    29: "t",
+    30: "u",
 }
 
 # Archive filename pattern, e.g. "24501-i90.zip", "23501-ic0.zip", or

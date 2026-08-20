@@ -1,0 +1,1240 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Directory Listing /ftp/Specs/archive/</title>
+        <style type="text/css">            
+			body{font-size:0.8em}
+            a { text-decoration: none; }
+            a:hover { text-decoration: underline; }
+            th {text-align:left;}
+            .box {float: left;  min-height: 50px;  margin: 0.5em; }
+            .after-box {  clear: left;}
+			h2 { margin-top:30px;}
+			.icon{width:22px;height:22px}
+			.myButton {
+				box-shadow:inset 0px 1px 0px 0px #a4e271;
+				background:linear-gradient(to bottom, #89c403 5%, #77a809 100%);
+				background-color:#89c403;
+				border-radius:6px;
+				border:1px solid #74b807;
+				display:inline-block;
+				cursor:pointer;
+				color:#ffffff;
+				font-family:Arial;
+				font-size:15px;
+				font-weight:bold;
+				padding:6px 24px;
+				text-decoration:none;
+				text-shadow:0px 1px 0px #528009;
+				margin-top:25px;
+			}
+			.myButton:hover {
+				background:linear-gradient(to bottom, #77a809 5%, #89c403 100%);
+				background-color:#77a809;
+			}
+			.myButton:active {
+				position:relative;
+				top:1px;
+			}
+			#dragNdrop{
+			
+				display:none;
+			
+				border:4px grey dashed;
+				width:500px;
+				padding:50px;
+				text-align: center;
+				-webkit-border-radius: 5px;
+				-moz-border-radius: 5px;
+				border-radius: 5px;
+				margin-bottom:15px;				
+			}
+			#dragNdrop:hover{
+				cursor:pointer;
+			}
+			.resultMsg{
+				font-size:20px;
+				width:40%;
+				padding: 15px;
+				margin-bottom: 20px;
+				border: 1px solid transparent;
+				border-radius: 4px;
+			}
+			.success{
+				color: #3c763d;
+				background-color: #dff0d8;
+				border-color: #d6e9c6;
+			}
+			.failure{
+				color: #a94442;
+				background-color: #f2dede;
+				border-color: #ebccd1;
+				background-repeat: no-repeat;
+				background-position: left center;
+			}
+
+        </style>
+		<script type="text/javascript">
+			function expandDnD(){
+				
+				window.location = window.location.href + "?login=1";
+				
+				var divDnD = document.getElementById("dragNdrop");
+				divDnD.style.display = "block";
+			}	
+		</script>
+    </head>
+    <body>
+        <header>
+            <div class="box">
+                <img alt="ETSI logo" width="100" src="/ftp/zIcons/main-logo-3gpp.png">
+            </div>
+            <div class="box">
+                <h2>
+                
+                        
+                        <a href="https://www.3gpp.org/">www.3gpp.org</a> /
+                        
+                        <a href="https://www.3gpp.org/ftp/">ftp</a> /
+                    
+                        <a href="https://www.3gpp.org/ftp/Specs/">Specs</a> /
+                    
+                        archive
+                    
+                    </h2>
+            </div>
+			
+            <div class="after-box">
+            </div>
+        </header>
+			
+        <form method="post" action="./" id="ctl00">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTYzMzc3NjExMA9kFgRmDxYCHgtfIUl0ZW1Db3VudAIDFgYCAQ9kFgJmDxUBLTxhIGhyZWY9Imh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC8iPmZ0cDwvYT4gL2QCAg9kFgJmDxUBNTxhIGhyZWY9Imh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy8iPlNwZWNzPC9hPiAvZAIDD2QWAmYPFQEHYXJjaGl2ZWQCAQ9kFgRmDxYCHwACLhZcZg9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzAwX3NlcmllcwkwMF9zZXJpZXMQMjAxNi8wMy8wOSAxNDoxNgBkAgEPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8wMV9zZXJpZXMJMDFfc2VyaWVzDzIwMDMvMDkvMDIgODoyNABkAgIPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8wMl9zZXJpZXMJMDJfc2VyaWVzDzIwMDMvMDkvMDIgODoyNABkAgMPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8wM19zZXJpZXMJMDNfc2VyaWVzDzIwMDUvMDEvMjcgOTowMQBkAgQPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8wNF9zZXJpZXMJMDRfc2VyaWVzEDIwMDMvMDgvMTkgMTM6NTcAZAIFD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvMDVfc2VyaWVzCTA1X3NlcmllcxAyMDA0LzExLzMwIDExOjQ5AGQCBg9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzA2X3NlcmllcwkwNl9zZXJpZXMPMjAwMS8wOC8yNCA5OjQzAGQCBw9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzA3X3NlcmllcwkwN19zZXJpZXMPMjAwMS8wOC8yMyA4OjU0AGQCCA9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzA4X3NlcmllcwkwOF9zZXJpZXMQMjAwMy8wOC8xOSAxNDowNQBkAgkPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8wOV9zZXJpZXMJMDlfc2VyaWVzEDIwMDMvMDgvMTkgMTM6NTgAZAIKD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvMTBfc2VyaWVzCTEwX3Nlcmllcw8yMDAxLzA4LzIzIDg6NTkAZAILD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvMTFfc2VyaWVzCTExX3NlcmllcxAyMDAzLzA4LzE5IDE0OjAzAGQCDA9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzEyX3NlcmllcwkxMl9zZXJpZXMPMjAwMi8wOC8yOCA4OjUyAGQCDQ9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzIxX3NlcmllcwkyMV9zZXJpZXMQMjAyNi8wMi8yNyAxNzoyMgBkAg4PZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8yMl9zZXJpZXMJMjJfc2VyaWVzEDIwMjYvMDgvMTIgMjE6MzcAZAIPD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvMjNfc2VyaWVzCTIzX3Nlcmllcw8yMDI2LzA2LzE2IDg6MDUAZAIQD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvMjRfc2VyaWVzCTI0X3NlcmllcxAyMDI2LzA2LzE3IDEzOjI3AGQCEQ9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzI1X3NlcmllcwkyNV9zZXJpZXMQMjAxNy8wNi8wOCAyMDo1MgBkAhIPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8yNl9zZXJpZXMJMjZfc2VyaWVzDzIwMjYvMDQvMDcgNjo0MwBkAhMPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8yN19zZXJpZXMJMjdfc2VyaWVzEDIwMTQvMDUvMTIgMTQ6MDkAZAIUD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvMjhfc2VyaWVzCTI4X3NlcmllcxAyMDI2LzA4LzA3IDEyOjQ3AGQCFQ9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzI5X3NlcmllcwkyOV9zZXJpZXMQMjAyNi8wNi8xOSAxMToyOQBkAhYPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8zMF9zZXJpZXMJMzBfc2VyaWVzDzIwMTIvMDEvMDkgOToxMQBkAhcPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8zMV9zZXJpZXMJMzFfc2VyaWVzDzIwMjYvMDgvMTggNzo0MABkAhgPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8zMl9zZXJpZXMJMzJfc2VyaWVzEDIwMjYvMDEvMTIgMTA6MDgAZAIZD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvMzNfc2VyaWVzCTMzX3NlcmllcxAyMDI2LzA4LzE3IDEwOjI4AGQCGg9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzM0X3NlcmllcwkzNF9zZXJpZXMQMjAxOS8xMS8wOCAxMzozMgBkAhsPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8zNV9zZXJpZXMJMzVfc2VyaWVzDzIwMjUvMDMvMjUgOTo0NgBkAhwPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS8zNl9zZXJpZXMJMzZfc2VyaWVzEDIwMjYvMDQvMDMgMTQ6NDIAZAIdD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvMzdfc2VyaWVzCTM3X3NlcmllcxAyMDI2LzAxLzMwIDE5OjQzAGQCHg9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzM4X3NlcmllcwkzOF9zZXJpZXMPMjAyNi8wNi8yOSA5OjA2AGQCHw9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzQxX3Nlcmllcwk0MV9zZXJpZXMPMjAwMy8wNi8yNSA4OjI5AGQCIA9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzQyX3Nlcmllcwk0Ml9zZXJpZXMQMjAwMS8wOS8xMiAxNTowMgBkAiEPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS80M19zZXJpZXMJNDNfc2VyaWVzEDIwMTQvMDMvMTAgMTU6NDYAZAIiD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvNDRfc2VyaWVzCTQ0X3Nlcmllcw8yMDA1LzAyLzAzIDg6MTIAZAIjD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvNDVfc2VyaWVzCTQ1X3NlcmllcxAyMDE0LzEyLzE4IDExOjIyAGQCJA9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzQ2X3Nlcmllcwk0Nl9zZXJpZXMQMjAwMS8xMC8xMCAxNDoyMgBkAiUPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS80N19zZXJpZXMJNDdfc2VyaWVzDzIwMDEvMDgvMTQgNzowOQBkAiYPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS80OF9zZXJpZXMJNDhfc2VyaWVzDzIwMDkvMDkvMjkgODozOABkAicPZBYEZg8VAQBkAgEPFQYAADBodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS80OV9zZXJpZXMJNDlfc2VyaWVzEDIwMDUvMDQvMjIgMTE6NTIAZAIoD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvNTBfc2VyaWVzCTUwX3Nlcmllcw8yMDAxLzA4LzIzIDk6MTEAZAIpD2QWBGYPFQEAZAIBDxUGAAAwaHR0cHM6Ly93d3cuM2dwcC5vcmcvZnRwL1NwZWNzL2FyY2hpdmUvNTFfc2VyaWVzCTUxX3NlcmllcxAyMDEwLzAzLzA1IDEzOjI0AGQCKg9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzUyX3Nlcmllcwk1Ml9zZXJpZXMPMjAwMy8wNy8xNSA4OjA4AGQCKw9kFgRmDxUBAGQCAQ8VBgAAMGh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlLzU1X3Nlcmllcwk1NV9zZXJpZXMPMjAxNi8wNi8yMyA5OjA4AGQCLA9kFgRmDxUBAGQCAQ8VBgAALmh0dHBzOi8vd3d3LjNncHAub3JnL2Z0cC9TcGVjcy9hcmNoaXZlL09wZW5BUEkHT3BlbkFQSRAyMDE5LzAzLzI4IDE1OjQ5AGQCLQ9kFgRmDxUBQjxpbnB1dCB0eXBlPSJjaGVja2JveCIgY2xhc3M9ImRvd25sb2FkSW5wdXQiIHZhbHVlPSJyZWFkbWUudHh0IiAvPmQCAQ8VBgQudHh0DGNsYXNzPSJmaWxlIjFodHRwczovL3d3dy4zZ3BwLm9yZy9mdHAvU3BlY3MvYXJjaGl2ZS9yZWFkbWUudHh0CnJlYWRtZS50eHQPMjAwMS8wOS8wMyA3OjQ5BDAgS0JkAgEPDxYCHgRUZXh0BQk0NiBpdGVtcy5kZGTwz0IOL7OWxjtIB/ZD8Uzq9hQtbs3LVqaCPHcz5dfoCA==" />
+</div>
+
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="EDC176C3" />
+</div>
+			<div id="dragNdrop">
+				<img src="/ftp/zIcons/cloud-upload.png" alt="upload" width="100" />
+				<br />Drag and drop documents here or click to upload
+				<br />
+				<div id="file-preview"></div>
+			</div>
+			
+			<div class="resultMsg failure" id="InvalidFolder" style="display:none">Invalid folder name</div>
+			
+<button id="downlaod" type="button" style="padding:6px;margin-top:0px" title="Download selected files" onclick="download(event);return false;" class="myButton">
+					Download 
+					<svg id="downloadingSVG" style="width:18px;display:none" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><circle cx="12" cy="3" r="1"><animate id="spinner_7Z73" begin="0;spinner_tKsu.end-0.5s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="16.50" cy="4.21" r="1"><animate id="spinner_Wd87" begin="spinner_7Z73.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="7.50" cy="4.21" r="1"><animate id="spinner_tKsu" begin="spinner_9Qlc.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="19.79" cy="7.50" r="1"><animate id="spinner_lMMO" begin="spinner_Wd87.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="4.21" cy="7.50" r="1"><animate id="spinner_9Qlc" begin="spinner_Khxv.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="21.00" cy="12.00" r="1"><animate id="spinner_5L9t" begin="spinner_lMMO.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="3.00" cy="12.00" r="1"><animate id="spinner_Khxv" begin="spinner_ld6P.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="19.79" cy="16.50" r="1"><animate id="spinner_BfTD" begin="spinner_5L9t.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="4.21" cy="16.50" r="1"><animate id="spinner_ld6P" begin="spinner_XyBs.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="16.50" cy="19.79" r="1"><animate id="spinner_7gAK" begin="spinner_BfTD.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="7.50" cy="19.79" r="1"><animate id="spinner_XyBs" begin="spinner_HiSl.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><circle cx="12" cy="21" r="1"><animate id="spinner_HiSl" begin="spinner_7gAK.begin+0.1s" attributeName="r" calcMode="spline" dur="0.6s" values="1;2;1" keySplines=".27,.42,.37,.99;.53,0,.61,.73"></animate></circle><animateTransform attributeName="transform" type="rotate" dur="6s" values="360 12 12;0 12 12" repeatCount="indefinite"></animateTransform></g></svg>
+					<svg id="readyToDownloadSVG" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+					  <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+					  <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+					</svg>
+					</button>
+            <table style="margin-left:20px">
+                <thead>
+                  <tr>
+				  <th style="text-align:center">
+					<br>
+					<input style="" title="Select all" type="checkbox" onclick="selectAll(this.checked);"> 
+					</th>
+                    <th>&nbsp;</th>
+                    <th><a href="?sortby=name">sort by name</a>/<a href="?sortby=namerev">desc</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                    <th><a href="?sortby=date">sort by date</a>/<a href="?sortby=daterev">desc</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th> 
+                    <th><a href="?sortby=size">sort by size</a>/<a href="?sortby=sizerev">desc</a></th>
+                  </tr>
+                </thead>
+                <tbody>
+                    
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/00_series">00_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2016/03/09 14:16
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/01_series">01_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2003/09/02 8:24
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/02_series">02_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2003/09/02 8:24
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/03_series">03_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2005/01/27 9:01
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/04_series">04_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2003/08/19 13:57
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/05_series">05_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2004/11/30 11:49
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/06_series">06_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2001/08/24 9:43
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/07_series">07_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2001/08/23 8:54
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/08_series">08_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2003/08/19 14:05
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/09_series">09_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2003/08/19 13:58
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/10_series">10_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2001/08/23 8:59
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/11_series">11_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2003/08/19 14:03
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/12_series">12_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2002/08/28 8:52
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/21_series">21_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/02/27 17:22
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/22_series">22_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/08/12 21:37
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/23_series">23_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/06/16 8:05
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/24_series">24_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/06/17 13:27
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/25_series">25_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2017/06/08 20:52
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/26_series">26_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/04/07 6:43
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/27_series">27_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2014/05/12 14:09
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/28_series">28_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/08/07 12:47
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/29_series">29_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/06/19 11:29
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/30_series">30_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2012/01/09 9:11
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/31_series">31_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/08/18 7:40
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/32_series">32_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/01/12 10:08
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/33_series">33_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/08/17 10:28
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/34_series">34_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2019/11/08 13:32
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/35_series">35_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2025/03/25 9:46
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/36_series">36_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/04/03 14:42
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/37_series">37_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/01/30 19:43
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/38_series">38_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2026/06/29 9:06
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/41_series">41_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2003/06/25 8:29
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/42_series">42_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2001/09/12 15:02
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/43_series">43_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2014/03/10 15:46
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/44_series">44_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2005/02/03 8:12
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/45_series">45_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2014/12/18 11:22
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/46_series">46_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2001/10/10 14:22
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/47_series">47_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2001/08/14 7:09
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/48_series">48_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2009/09/29 8:38
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/49_series">49_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2005/04/22 11:52
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/50_series">50_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2001/08/23 9:11
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/51_series">51_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2010/03/05 13:24
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/52_series">52_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2003/07/15 8:08
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/55_series">55_series</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2016/06/23 9:08
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a  href="https://www.3gpp.org/ftp/Specs/archive/OpenAPI">OpenAPI</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2019/03/28 15:49
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        
+                            <tr>
+							<td style="text-align:center">
+								<input type="checkbox" class="downloadInput" value="readme.txt" /> 
+								</td>
+                                <td>
+                                    <img class="icon" alt="icon" src="/ftp/geticon.axd?file=.txt" /> 
+                                </td>
+                                <td style="padding-right:10px">
+                                    <a class="file" href="https://www.3gpp.org/ftp/Specs/archive/readme.txt">readme.txt</a> 
+								</td>
+                                <td style="padding-right:10px">
+                                    2001/09/03 7:49
+                                </td>
+                                <td>
+                                    0 KB
+                                </td>
+                            </tr>
+                        
+                </tbody>
+            </table>
+            <hr />
+            <p>
+                <span id="FileCount">46 items.</span>
+            </p>
+        </form>	
+	<script type="text/javascript">
+		var
+			dropRegion = document.getElementById("dragNdrop"),
+			filePreviewRegion = document.getElementById("file-preview");
+
+
+		// open file selector when clicked on the drop region
+		var fakeInput = document.createElement("input");
+		fakeInput.type = "file";
+		fakeInput.multiple = true;
+		dropRegion.addEventListener('click', function() {
+			fakeInput.click();
+		});
+
+		fakeInput.addEventListener("change", function() {
+			var files = fakeInput.files;
+			handleFiles(files);
+		});
+
+
+		function preventDefault(e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+
+		dropRegion.addEventListener('dragenter', preventDefault, false)
+		dropRegion.addEventListener('dragleave', preventDefault, false)
+		dropRegion.addEventListener('dragover', preventDefault, false)
+		dropRegion.addEventListener('drop', preventDefault, false)
+
+function scanFiles(item) {
+		  if (item.isFile) {
+			item.file(function(file) {previewAnduploadFile(file,getLocation(window.location.href).pathname + item.fullPath.replace(item.name,""))});
+			
+		  }
+		  if (item.isDirectory) {
+		    
+			if(validateFileName(item.name)){
+				var ajax2 = new XMLHttpRequest();
+				ajax2.open("GET", location.pathname + item.fullPath.replace(item.name,"") + "?createFolder=" + encodeURIComponent(item.name) , true);
+				ajax2.item = item;
+				ajax2.onreadystatechange = function(e) {
+					if (ajax2.readyState === 4) {
+						if (ajax2.status === 200) {
+						
+							let directoryReader = ajax2.item.createReader();
+							directoryReader.readEntries((entries) => {
+							  entries.forEach((entry) => {
+								scanFiles(entry);
+							  });
+							});
+							// done!
+							;
+							
+							if(ajax2.responseURL.substring(0, ajax2.responseURL.indexOf("?")) == window.location.href.split("?")[0] + "/"){
+								var bodyHtml = /<table.*?>([\s\S]*)<\/table>/.exec(ajax2.responseText)[1];
+								document.getElementsByTagName("table")[0].innerHTML = bodyHtml;
+							}
+						} else {
+							// error!
+						}
+						
+					}
+				};
+				ajax2.send();
+			}else{
+				document.getElementById("InvalidFolder").style.display = "block";
+			}
+		  }
+		}
+		function handleDrop(e) {
+			
+			var dt = e.dataTransfer,
+				files = dt.files,
+				items = dt.items;
+			for (var i = 0, len = items.length; i < len; i++) {
+				scanFiles(dt.items[i].webkitGetAsEntry());
+			}
+		}
+
+		dropRegion.addEventListener('drop', handleDrop, false);
+
+
+
+		function handleFiles(files) {
+			if (window.confirm("Are you sure you want to upload?")) {
+				for (var i = 0, len = files.length; i < len; i++) {
+					previewAnduploadFile(files[i]);
+				}
+			}
+		}
+		var getLocation = function(href) {
+			var l = document.createElement("a");
+			l.href = href;
+			return l;
+		};
+		function previewAnduploadFile(file,uploadLocation = getLocation(window.location.href).pathname) {
+
+			// container
+			var imgView = document.createElement("div");
+			imgView.className = "image-view";
+			filePreviewRegion.appendChild(imgView);
+
+			// previewing image
+			var img = document.createElement("span");
+			img.innerHTML = file.name + " ";
+			imgView.appendChild(img);
+
+			// progress overlay
+			var overlay = document.createElement("progress");
+			overlay.className = "overlay";
+			imgView.appendChild(overlay);
+
+
+			// create FormData
+			var formData = new FormData();
+			formData.append(file.name, file);
+
+			// upload the image
+			
+			//var uploadLocation = getLocation(window.location.href).pathname;
+			
+
+			var ajax = new XMLHttpRequest();
+			ajax.open("POST", uploadLocation, true);
+
+			ajax.onreadystatechange = function(e) {
+				if (ajax.readyState === 4) {
+					if (ajax.status === 200) {
+						// done!
+						if(ajax.responseURL.substring(0, ajax.responseURL.indexOf("?")) == window.location.href.split("?")[0] + "/"){
+								var bodyHtml = /<table.*?>([\s\S]*)<\/table>/.exec(ajax.responseText)[1];
+								document.getElementsByTagName("table")[0].innerHTML = bodyHtml;
+							}
+						
+					} else {
+						// error!
+					}
+				}
+			}
+
+			ajax.upload.onprogress = function(e) {
+
+				var perc = (e.loaded / e.total * 100) || 100;
+
+				overlay.value = perc;
+				overlay.max=100;
+			}
+
+			ajax.send(formData);
+			
+
+		}
+		function uploadFolder(event){
+			document.getElementById("InvalidFolder").style.display = "none";
+			event.preventDefault();
+			if(validateFileName(document.getElementById("folderName").value)){
+				var ajax = new XMLHttpRequest();
+				ajax.open("GET", location.pathname + "?createFolder=" + encodeURIComponent(document.getElementById("folderName").value) , true);
+				ajax.onreadystatechange = function(e) {
+					if (ajax.readyState === 4) {
+						if (ajax.status === 200) {
+							//TODO
+							if(ajax.responseText == "Success"){
+								window.location.reload();
+							}
+						} else {
+							// error!
+						}
+					}
+				}
+				ajax.send();
+				return false;
+			}else{
+				document.getElementById("InvalidFolder").style.display = "block";
+				return false;
+			}
+		}
+		function changeFolderPermissions(){
+			var r = confirm("You are about to change the permissions for this folder.");
+			if (r == true) {
+				var ajax = new XMLHttpRequest();
+				ajax.open("GET", location.pathname + "?changeFolderPermissions=1&t=" + Date.now() , true);
+				ajax.onreadystatechange = function(e) {
+					if (ajax.readyState === 4) {
+						if (ajax.status === 200) {
+							// done!
+							var bodyHtml = /<body.*?>([\s\S]*)<\/body>/.exec(ajax.responseText)[1];
+							document.getElementsByTagName("body")[0].innerHTML = bodyHtml;
+							var element = document.getElementById("enableUploads");
+							document.getElementById("dragNdrop").style.display = "block";
+							if(typeof(element) != 'undefined' && element != null){
+								document.getElementById("dragNdrop").style.display = "none";
+							}
+						} else {
+							// error!
+						}
+					}
+				}
+				ajax.send();
+			} 
+			return false;
+		}
+		function validateFileName(text) { 
+			var re = /[<>:"\/\\|?*\x00-\x1F]|^(?:aux|con|clock\$|nul|prn|com[1-9]|lpt[1-9])$/i;
+		    if(!re.test(text)) {
+			  return true;
+			}
+			return false;
+		}
+		function download(){
+			document.getElementById("readyToDownloadSVG").style.display = "none";
+			document.getElementById("downloadingSVG").style.display = "inline";
+			var filesInputs = document.getElementsByClassName("downloadInput");
+			if (filesInputs.length == 1){
+				window.location = document.location.protocol + '//' + document.location.host + document.location.pathname + "/" + filesInputs[i].value;
+			}
+			var filesToDownload = [];
+			for(var i=0;i<filesInputs.length;i++){
+				if(filesInputs[i].checked){
+					filesToDownload.push(filesInputs[i].value);
+				}
+			}
+			
+			fetch(location.pathname + "?download=multiple", {
+			  method: "POST",
+			  headers: {
+				"Content-Type": "application/json"
+			  },
+			  body: JSON.stringify(filesToDownload)
+			})
+			.then(response => response.blob())
+			.then(blob => {
+			  const url = window.URL.createObjectURL(blob);
+			  const a = document.createElement("a");
+			  a.href = url;
+			  a.download = "download.zip";  // Set desired file name
+			  document.body.appendChild(a);
+			  a.click();
+			  a.remove();
+			  document.getElementById("downloadingSVG").style.display = "none";
+			  document.getElementById("readyToDownloadSVG").style.display = "inline";
+			});
+		}
+		function selectAll(checked){
+			const checkboxes = document.querySelectorAll('.downloadInput');
+			checkboxes.forEach(checkbox => {
+			  checkbox.checked = checked;
+			});
+		}
+	</script>		
+    </body>
+</html>
